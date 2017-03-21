@@ -1,0 +1,4 @@
+parameters:
+    bbapp.cache.dir: vfs://repositorydir/cache/
+    bbapp.log.dir: vfs://repositorydir/log/
+    bbapp.config.configurator.class: BackBee\Tests\Mock\MockConfigurator

@@ -1,0 +1,13 @@
+bundles:
+    ldap: LpDigital\Bundle\LdapBundle\Ldap
+
+doctrine:
+    dbal:
+        driver: pdo_sqlite
+        memory: true
+
+renderer:
+    adapter:
+        twig:
+            config:
+                enable_cache: false
