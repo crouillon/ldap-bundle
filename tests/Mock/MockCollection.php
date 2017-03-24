@@ -21,60 +21,71 @@
 
 namespace LpDigital\Bundle\LdapBundle\Test\Mock;
 
+use Symfony\Component\Ldap\Adapter\CollectionInterface;
 use Symfony\Component\Ldap\Entry;
 
-use LpDigital\Bundle\LdapBundle\Ldap;
-
 /**
- * Mock object for Ldap
+ * Mock object for LDAP entries Collection
  *
  * @copyright    ©2017 - Lp digital
  * @author       Charles Rouillon <charles.rouillon@lp-digital.fr>
  */
-class MockLdap extends Ldap
+class MockCollection implements CollectionInterface
 {
 
     /**
-     * Mock constructor.
+     * {@inheritdoc}
      */
-    public function __construct()
+    public function count()
     {
-
+        return 1;
     }
 
     /**
-     * Sets an option.
-     *
-     * @param  string   $name
-     * @param  mixed    $value
-     *
-     * @return MockLdap
+     * {@inheritdoc}
      */
-    public function setOption($name, $value)
+    public function getIterator()
     {
-        $this->options[$name] = $value;
-
-        return $this;
+        return new \ArrayIterator($this->toArray());
     }
 
     /**
-     * Looks for LDAP entries matching $username.
-     *
-     * @param  string $username
-     *
-     * @return Entry[]
+     * {@inheritdoc}
      */
-    public function query($username)
+    public function offsetExists($offset)
     {
-        $entries = [];
+        return 0 === $offset;
+    }
 
-        if ('found' === $username) {
-            $entries[] = new Entry('dn found');
-        } elseif ('multiple' === $username) {
-            $entries[] = new Entry('dn1 found');
-            $entries[] = new Entry('dn2 found');
-        }
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset)
+    {
+        return 0 === $offset ? $this->toArray()[0] : null;
+    }
 
-        return $entries;
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet($offset, $value)
+    {
+        //
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset($offset)
+    {
+        //
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toArray()
+    {
+        return [new Entry('dn')];
     }
 }

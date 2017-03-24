@@ -5,3 +5,10 @@ bundle:
     version: 1.0
     enable: true
     config_per_site: true
+
+ldap:
+    search_dn: ~
+    search_password: ~
+    base_dn: ~
+    filter: (sAMAccountName={username})
+    persist_on_missing: false

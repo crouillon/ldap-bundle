@@ -21,60 +21,45 @@
 
 namespace LpDigital\Bundle\LdapBundle\Test\Mock;
 
-use Symfony\Component\Ldap\Entry;
-
-use LpDigital\Bundle\LdapBundle\Ldap;
+use Symfony\Component\Ldap\Adapter\ConnectionInterface;
+use Symfony\Component\Ldap\Exception\LdapException;
 
 /**
- * Mock object for Ldap
+ * Mock object for LDAP Connection.
  *
  * @copyright    ©2017 - Lp digital
  * @author       Charles Rouillon <charles.rouillon@lp-digital.fr>
  */
-class MockLdap extends Ldap
+class MockConnection implements ConnectionInterface
 {
 
     /**
-     * Mock constructor.
+     * @var bool
      */
-    public function __construct()
-    {
-
-    }
+    private $bound = false;
 
     /**
-     * Sets an option.
+     * Binds the connection against a DN and password.
      *
-     * @param  string   $name
-     * @param  mixed    $value
-     *
-     * @return MockLdap
+     * @param string $dn       The user's DN
+     * @param string $password The associated password
      */
-    public function setOption($name, $value)
+    public function bind($dn = null, $password = null)
     {
-        $this->options[$name] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Looks for LDAP entries matching $username.
-     *
-     * @param  string $username
-     *
-     * @return Entry[]
-     */
-    public function query($username)
-    {
-        $entries = [];
-
-        if ('found' === $username) {
-            $entries[] = new Entry('dn found');
-        } elseif ('multiple' === $username) {
-            $entries[] = new Entry('dn1 found');
-            $entries[] = new Entry('dn2 found');
+        if ('good' === $dn && 'good' === $password) {
+            $this->bound = true;
+        } else {
+            throw new LdapException('');
         }
+    }
 
-        return $entries;
+    /**
+     * Checks whether the connection was already bound or not.
+     *
+     * @return bool
+     */
+    public function isBound()
+    {
+        return $this->bound;
     }
 }

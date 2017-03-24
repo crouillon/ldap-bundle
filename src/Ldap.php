@@ -21,7 +21,12 @@
 
 namespace LpDigital\Bundle\LdapBundle;
 
+use Symfony\Component\Ldap\Adapter\CollectionInterface;
+use Symfony\Component\Ldap\Entry;
+use Symfony\Component\Ldap\Ldap as LdapClient;
+
 use BackBee\Bundle\AbstractBundle;
+use BackBee\DependencyInjection\Container;
 
 /**
  * Ldap bundle entry point.
@@ -33,13 +38,101 @@ class Ldap extends AbstractBundle
 {
 
     /**
-     * Method to call when we get the bundle for the first time.
+     * The current BackBee services container.
      *
-     * @codeCoverageIgnore
+     * @var Container
+     */
+    private $container;
+
+    /**
+     * Current bundle options.
+     *
+     * @var string[]
+     */
+    protected $options;
+
+    /**
+     * A LDAP client.
+     *
+     * @var LdapClient
+     */
+    protected $ldapClient;
+
+    /**
+     * Looks for LDAP entries matching $username.
+     *
+     * @param  string  $username The username to look for.
+     *
+     * @return Entry[]           The matching LDAP entries.
+     *
+     * @throws \RuntimeException if something went wrong.
+     */
+    public function query($username)
+    {
+        $this->getLdapClient()->bind(
+            $this->getOption('search_dn'),
+            $this->getOption('search_password')
+        );
+
+        $query = str_replace(
+            '{username}',
+            $this->getLdapClient()->escape($username, '', LDAP_ESCAPE_FILTER),
+            $this->getOption('filter')
+        );
+
+        $results = $this
+            ->getLdapClient()
+            ->query($this->getOption('base_dn'), $query)
+            ->execute();
+
+        return $results instanceof CollectionInterface ? $results->toArray() : $results;
+    }
+
+    /**
+     * Returns an option value if exists, null elsewhere.
+     *
+     * @param  string $name The option name.
+     *
+     * @return mixed
+     */
+    public function getOption($name)
+    {
+        return isset($this->options[$name]) ? $this->options[$name] : null;
+    }
+
+    /**
+     * Returns the LDAP client service.
+     *
+     * @return LdapClient
+     */
+    protected function getLdapClient()
+    {
+        if (null === $this->ldapClient && $this->container->has('bundle.ldap.client')) {
+            $this->ldapClient = $this->container->get('bundle.ldap.client');
+        }
+
+        return $this->ldapClient;
+    }
+
+    /**
+     * Method to call when we get the bundle for the first time.
      */
     public function start()
     {
+        $this->container = $this->getApplication()->getContainer();
 
+        $defaultOptions = [
+            'base_dn' => '',
+            'search_dn' => '',
+            'search_password' => '',
+            'filter' => '(sAMAccountName={username})',
+            'persist_on_missing' => false,
+        ];
+
+        $this->options = array_merge(
+            $defaultOptions,
+            $this->getConfig()->getLdapConfig()
+        );
     }
 
     /**

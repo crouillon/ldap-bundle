@@ -76,7 +76,7 @@ class LdapUserProvider extends EntityRepository implements UserProviderInterface
             throw new \RuntimeException('The LDAP client is not defined.');
         }
 
-        $entries = $this->ldap->search($username);
+        $entries = $this->ldap->query($username);
         if (0 === count($entries)) {
             throw new UsernameNotFoundException(sprintf('User `%s` not found.', $username));
         } elseif (1 < count($entries)) {
@@ -127,10 +127,16 @@ class LdapUserProvider extends EntityRepository implements UserProviderInterface
      * @param  Entry  $entry
      *
      * @return LdapUser
+     *
+     * @throws UsernameNotFoundException if the user is not found.
      */
     private function loadUser($username, Entry $entry)
     {
         if (null === $user = $this->find($username)) {
+            if (true !== $this->ldap->getOption('persist_on_missing')) {
+                throw new UsernameNotFoundException(sprintf('User `%s` not found.', $username));
+            }
+
             $user = new LdapUser($username);
             $user->setEntry($entry);
 

@@ -102,6 +102,18 @@ class LdapUserProviderTest extends LdapTestCase
     /**
      * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::loadUserByUsername()
      * @expectedException        \Symfony\Component\Security\Core\Exception\UsernameNotFoundException
+     * @expectedExceptionMessage User `found` not found.
+     */
+    public function testNotPersistedLoadUserByUsername()
+    {
+        $this->provider
+                ->setLdap($this->mockLdap)
+                ->loadUserByUsername('found');
+    }
+
+    /**
+     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::loadUserByUsername()
+     * @expectedException        \Symfony\Component\Security\Core\Exception\UsernameNotFoundException
      * @expectedExceptionMessage More than one user found with `multiple`.
      */
     public function testMultipleLoadUserByUsername()
@@ -118,7 +130,7 @@ class LdapUserProviderTest extends LdapTestCase
     public function testLoadByUsername()
     {
         $user = $this->provider
-                ->setLdap($this->mockLdap)
+                ->setLdap($this->mockLdap->setOption('persist_on_missing', true))
                 ->loadUserByUsername('found');
 
         $this->assertInstanceOf(LdapUser::class, $user);
@@ -151,7 +163,7 @@ class LdapUserProviderTest extends LdapTestCase
     public function testRefreshUser()
     {
         $user = $this->provider
-                ->setLdap($this->mockLdap)
+                ->setLdap($this->mockLdap->setOption('persist_on_missing', true))
                 ->loadUserByUsername('found');
 
         $this->assertEquals($user, $this->provider->refreshUser($user));

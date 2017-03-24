@@ -51,6 +51,11 @@ class LdapTestCase extends \PHPUnit_Framework_TestCase
         $mockConfig = [
             'ClassContent' => [],
             'Config' => [
+                'bundle' => [
+                    'ldap' => [
+                        'services.yml' => file_get_contents(__DIR__ . '/Config/bundle/ldap/services.yml')
+                    ]
+                ],
                 'bootstrap.yml' => file_get_contents(__DIR__ . '/Config/bootstrap.yml'),
                 'config.yml' => file_get_contents(__DIR__ . '/Config/config.yml'),
                 'services.yml' => file_get_contents(__DIR__ . '/Config/services.yml'),
@@ -66,5 +71,28 @@ class LdapTestCase extends \PHPUnit_Framework_TestCase
 
         $application = new MockBBApplication(null, null, false, $mockConfig, __DIR__ . '/../vendor');
         $this->bundle = $application->getBundle('ldap');
+    }
+
+    /**
+     * Returns protected/private property value of a class.
+     *
+     * @param  object $object       Instantiated object that we will run method on.
+     * @param  string $propertyName Property name to return.
+     * @param  mixed  $value        Optional, a value to be setted.
+     *
+     * @return mixed                Property value return.
+     * @link https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
+     */
+    public function invokeProperty($object, $propertyName, $value = null)
+    {
+        $reflection = new \ReflectionClass(get_class($object));
+        $property = $reflection->getProperty($propertyName);
+        $property->setAccessible(true);
+
+        if (null !== $value) {
+            $property->setValue($object, $value);
+        }
+
+        return $property->getValue($object);
     }
 }

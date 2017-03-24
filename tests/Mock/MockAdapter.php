@@ -21,60 +21,30 @@
 
 namespace LpDigital\Bundle\LdapBundle\Test\Mock;
 
-use Symfony\Component\Ldap\Entry;
-
-use LpDigital\Bundle\LdapBundle\Ldap;
+use Symfony\Component\Ldap\Adapter\ExtLdap\Adapter;
 
 /**
- * Mock object for Ldap
+ * Mock object for LDAP adapter.
  *
  * @copyright    ©2017 - Lp digital
  * @author       Charles Rouillon <charles.rouillon@lp-digital.fr>
  */
-class MockLdap extends Ldap
+class MockAdapter extends Adapter
 {
 
     /**
-     * Mock constructor.
+     * {@inheritdoc}
      */
-    public function __construct()
+    public function getConnection()
     {
-
+        return new MockConnection();
     }
 
     /**
-     * Sets an option.
-     *
-     * @param  string   $name
-     * @param  mixed    $value
-     *
-     * @return MockLdap
+     * {@inheritdoc}
      */
-    public function setOption($name, $value)
+    public function createQuery($dn, $query, array $options = array())
     {
-        $this->options[$name] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Looks for LDAP entries matching $username.
-     *
-     * @param  string $username
-     *
-     * @return Entry[]
-     */
-    public function query($username)
-    {
-        $entries = [];
-
-        if ('found' === $username) {
-            $entries[] = new Entry('dn found');
-        } elseif ('multiple' === $username) {
-            $entries[] = new Entry('dn1 found');
-            $entries[] = new Entry('dn2 found');
-        }
-
-        return $entries;
+        return new MockQuery($this->getConnection(), $dn, $query, $options);
     }
 }
