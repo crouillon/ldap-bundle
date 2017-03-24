@@ -44,12 +44,12 @@ class MockLdap extends Ldap
     }
 
     /**
-     * Sets an option.
+     * Sets an option value.
      *
-     * @param  string   $name
-     * @param  mixed    $value
+     * @param  string $name  The option name.
+     * @param  mixed  $value
      *
-     * @return MockLdap
+     * @return Ldap
      */
     public function setOption($name, $value)
     {
@@ -85,7 +85,7 @@ class MockLdap extends Ldap
         $entries = [];
 
         if ('found' === $username) {
-            $entries[] = new Entry('dn found');
+            $entries[] = new Entry('good');
         } elseif ('multiple' === $username) {
             $entries[] = new Entry('dn1 found');
             $entries[] = new Entry('dn2 found');

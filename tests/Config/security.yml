@@ -1,0 +1,19 @@
+firewalls:
+  front_area:
+    pattern: ^/
+    provider: ldap
+    form_login_ldap:
+      service: bundle.mockldap
+      dn_string: '{username}'
+
+providers:
+  ldap:
+    entity:
+      class: LpDigital\Bundle\LdapBundle\User\LdapUser
+    search_dn: good
+    search_password: good
+    default_roles: [ROLE_USER]
+
+contexts:
+  LpDigital\Bundle\LdapBundle\Security\Context:
+    - LdapContext

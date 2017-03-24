@@ -21,11 +21,12 @@
 
 namespace LpDigital\Bundle\LdapBundle\Authentication\Provider;
 
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authentication\Provider\UserAuthenticationProvider;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserCheckerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception;
+use Symfony\Component\Security\Core\User\UserCheckerInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+
 use LpDigital\Bundle\LdapBundle\User\LdapUser;
 use LpDigital\Bundle\LdapBundle\User\LdapUserProvider;
 
@@ -72,6 +73,7 @@ class LdapAuthenticationProvider extends UserAuthenticationProvider
     protected function checkAuthentication(UserInterface $user, UsernamePasswordToken $token)
     {
         $password = $token->getCredentials();
+
         if (empty($password)) {
             throw new Exception\BadCredentialsException('The presented password cannot be empty.');
         }

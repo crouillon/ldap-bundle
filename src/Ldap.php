@@ -23,8 +23,8 @@ namespace LpDigital\Bundle\LdapBundle;
 
 use Symfony\Component\Ldap\Adapter\CollectionInterface;
 use Symfony\Component\Ldap\Entry;
-use Symfony\Component\Ldap\Ldap as LdapClient;
 use Symfony\Component\Ldap\Exception\LdapException;
+use Symfony\Component\Ldap\Ldap as LdapClient;
 
 use BackBee\Bundle\AbstractBundle;
 use BackBee\DependencyInjection\Container;

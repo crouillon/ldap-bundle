@@ -50,12 +50,20 @@ class LdapTest extends LdapTestCase
     }
 
     /**
+     * @covers LpDigital\Bundle\LdapBundle\Ldap::bind()
+     */
+    public function testBind()
+    {
+        $this->assertNull($this->bundle->bind('good', 'good'));
+    }
+
+    /**
      * @covers            LpDigital\Bundle\LdapBundle\Ldap::query()
      * @expectedException \Symfony\Component\Ldap\Exception\LdapException
      */
     public function testInvalidBindQuery()
     {
-        $this->bundle->query('uername');
+        $this->bundle->query('username');
     }
 
     /**

@@ -7,8 +7,8 @@ bundle:
     config_per_site: true
 
 ldap:
-    search_dn: ~
-    search_password: ~
-    base_dn: ~
-    filter: (sAMAccountName={username})
+    search_dn: ""
+    search_password: ""
+    base_dn: ""
+    filter: "(sAMAccountName={username})"
     persist_on_missing: false

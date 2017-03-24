@@ -2,3 +2,13 @@ parameters:
     bbapp.cache.dir: vfs://repositorydir/cache/
     bbapp.log.dir: vfs://repositorydir/log/
     bbapp.config.configurator.class: BackBee\Tests\Mock\MockConfigurator
+
+services:
+    session.storage:
+        class: Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage
+    bundle.mockldap:
+        class: LpDigital\Bundle\LdapBundle\Test\Mock\MockLdap
+    success.handler:
+        class: LpDigital\Bundle\LdapBundle\Test\Mock\MockInvalidSuccessHandler
+    failure.handler:
+        class: LpDigital\Bundle\LdapBundle\Test\Mock\MockInvalidFailureHandler

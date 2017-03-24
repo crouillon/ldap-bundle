@@ -22,17 +22,16 @@
 namespace LpDigital\Bundle\LdapBundle\Test\Authentication\Provider;
 
 use Doctrine\ORM\Tools\SchemaTool;
-use Symfony\Component\Security\Core\User\UserChecker;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Ldap\Entry;
-use Symfony\Component\Security\Core\User\InMemoryUserProvider;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\User\UserChecker;
 
 use BackBee\Security\User;
 
 use LpDigital\Bundle\LdapBundle\Authentication\Provider\LdapAuthenticationProvider;
 use LpDigital\Bundle\LdapBundle\Test\LdapTestCase;
-use LpDigital\Bundle\LdapBundle\User\LdapUser;
 use LpDigital\Bundle\LdapBundle\Test\Mock\MockLdap;
+use LpDigital\Bundle\LdapBundle\User\LdapUser;
 use LpDigital\Bundle\LdapBundle\User\LdapUserProvider;
 
 /**
@@ -121,6 +120,9 @@ class LdapAuthenticationProviderTest extends LdapTestCase
         $user = new LdapUser('good');
         $user->setEntry(new Entry('good'));
 
+        $userProvider = $this->invokeProperty($this->provider, 'userProvider');
+        $this->invokeProperty($userProvider, 'ldap', 'null');
+
         $token = new UsernamePasswordToken('good', 'good', 'providerkey');
         $this->invokeMethod($this->provider, 'checkAuthentication', [$user, $token]);
     }
@@ -170,6 +172,9 @@ class LdapAuthenticationProviderTest extends LdapTestCase
      */
     public function testRetrieveInvalidLdap()
     {
+        $userProvider = $this->invokeProperty($this->provider, 'userProvider');
+        $this->invokeProperty($userProvider, 'ldap', 'null');
+
         $token = new UsernamePasswordToken('good', 'good', 'providerkey');
         $this->invokeMethod($this->provider, 'retrieveUser', ['good', $token]);
     }

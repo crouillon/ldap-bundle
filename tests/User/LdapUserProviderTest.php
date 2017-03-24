@@ -84,6 +84,7 @@ class LdapUserProviderTest extends LdapTestCase
      */
     public function testInvalidLoadUserByUsername()
     {
+        $this->invokeProperty($this->provider, 'ldap', 'null');
         $this->provider->loadUserByUsername('username');
     }
 
