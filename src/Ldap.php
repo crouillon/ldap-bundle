@@ -24,6 +24,7 @@ namespace LpDigital\Bundle\LdapBundle;
 use Symfony\Component\Ldap\Adapter\CollectionInterface;
 use Symfony\Component\Ldap\Entry;
 use Symfony\Component\Ldap\Ldap as LdapClient;
+use Symfony\Component\Ldap\Exception\LdapException;
 
 use BackBee\Bundle\AbstractBundle;
 use BackBee\DependencyInjection\Container;
@@ -57,6 +58,19 @@ class Ldap extends AbstractBundle
      * @var LdapClient
      */
     protected $ldapClient;
+
+    /**
+     * Checks a connection bound to the ldap.
+     *
+     * @param string $dn       A LDAP dn
+     * @param string $password A password
+     *
+     * @throws LdapException if dn / password could not be bound.
+     */
+    public function bind($dn, $password)
+    {
+        $this->getLdapClient()->bind($dn, $password);
+    }
 
     /**
      * Looks for LDAP entries matching $username.

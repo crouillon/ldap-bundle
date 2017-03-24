@@ -47,6 +47,18 @@ class LdapUserProvider extends EntityRepository implements UserProviderInterface
     private $ldap;
 
     /**
+     * Returns the current Ldap instance.
+     *
+     * @return Ldap|null
+     *
+     * @codeCoverageIgnore
+     */
+    public function getLdap()
+    {
+        return $this->ldap;
+    }
+
+    /**
      * Sets the LDAP bundle.
      *
      * @param  Ldap $ldap

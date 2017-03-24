@@ -41,6 +41,15 @@ class LdapTest extends LdapTestCase
     }
 
     /**
+     * @covers            LpDigital\Bundle\LdapBundle\Ldap::bind()
+     * @expectedException \Symfony\Component\Ldap\Exception\LdapException
+     */
+    public function testInvalidBind()
+    {
+        $this->bundle->bind('notgood', 'notgood');
+    }
+
+    /**
      * @covers            LpDigital\Bundle\LdapBundle\Ldap::query()
      * @expectedException \Symfony\Component\Ldap\Exception\LdapException
      */

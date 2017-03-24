@@ -22,6 +22,7 @@
 namespace LpDigital\Bundle\LdapBundle\Test\Mock;
 
 use Symfony\Component\Ldap\Entry;
+use Symfony\Component\Ldap\Exception\LdapException;
 
 use LpDigital\Bundle\LdapBundle\Ldap;
 
@@ -55,6 +56,21 @@ class MockLdap extends Ldap
         $this->options[$name] = $value;
 
         return $this;
+    }
+
+    /**
+     * Checks a connection bound to the ldap.
+     *
+     * @param string $dn       A LDAP dn
+     * @param string $password A password
+     *
+     * @throws LdapException if dn / password could not be bound.
+     */
+    public function bind($dn, $password)
+    {
+        if ('good' !== $dn || 'good' !== $password) {
+            throw new LdapException();
+        }
     }
 
     /**
