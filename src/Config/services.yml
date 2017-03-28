@@ -12,3 +12,5 @@ services:
     bundle.ldap.client:
         class: Symfony\Component\Ldap\Ldap
         arguments: [@bundle.ldap.adapter]
+    bundle.ldap.forbidden_handler:
+        class: LpDigital\Bundle\LdapBundle\Security\Handler\ForbiddenFailureHandler

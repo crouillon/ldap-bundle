@@ -103,6 +103,21 @@ class Ldap extends AbstractBundle
     }
 
     /**
+     * Sets an option value.
+     *
+     * @param  string $name  The option name.
+     * @param  mixed  $value
+     *
+     * @return Ldap
+     */
+    public function setOption($name, $value)
+    {
+        $this->options[$name] = $value;
+
+        return $this;
+    }
+
+    /**
      * Returns an option value if exists, null elsewhere.
      *
      * @param  string $name The option name.

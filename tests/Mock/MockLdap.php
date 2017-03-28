@@ -44,21 +44,6 @@ class MockLdap extends Ldap
     }
 
     /**
-     * Sets an option value.
-     *
-     * @param  string $name  The option name.
-     * @param  mixed  $value
-     *
-     * @return Ldap
-     */
-    public function setOption($name, $value)
-    {
-        $this->options[$name] = $value;
-
-        return $this;
-    }
-
-    /**
      * Checks a connection bound to the ldap.
      *
      * @param string $dn       A LDAP dn

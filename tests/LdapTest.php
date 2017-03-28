@@ -84,11 +84,15 @@ class LdapTest extends LdapTestCase
 
     /**
      * @covers LpDigital\Bundle\LdapBundle\Ldap::getOption()
+     * @covers LpDigital\Bundle\LdapBundle\Ldap::setOption()
      */
-    public function testGetOption()
+    public function testOption()
     {
-        $this->assertNull($this->bundle->getOption('inknown'));
+        $this->assertNull($this->bundle->getOption('unknown'));
         $this->assertEquals('(sAMAccountName={username})', $this->bundle->getOption('filter'));
+
+        $this->assertEquals($this->bundle, $this->bundle->setOption('unknown', 'new'));
+        $this->assertEquals('new', $this->bundle->getOption('unknown'));
     }
 
     /**
