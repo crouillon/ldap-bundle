@@ -36,8 +36,8 @@ use BackBee\Security\SecurityContext;
 
 use LpDigital\Bundle\LdapBundle\Authentication\Provider\LdapAuthenticationProvider;
 use LpDigital\Bundle\LdapBundle\Ldap;
+use LpDigital\Bundle\LdapBundle\Security\LdapUserProvider;
 use LpDigital\Bundle\LdapBundle\Security\Listener\LdapAuthenticationListener;
-use LpDigital\Bundle\LdapBundle\User\LdapUserProvider;
 
 /**
  * A LDAP firewall context.

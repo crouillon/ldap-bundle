@@ -19,7 +19,7 @@
  * along with ldap-bundle. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace LpDigital\Bundle\LdapBundle\User;
+namespace LpDigital\Bundle\LdapBundle\Security;
 
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Ldap\Entry;
@@ -28,6 +28,7 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
+use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
 use LpDigital\Bundle\LdapBundle\Ldap;
 
 /**

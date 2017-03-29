@@ -66,7 +66,7 @@ class LdapContextTest extends \PHPUnit_Framework_TestCase
                 'bootstrap.yml' => file_get_contents(__DIR__ . '/../../Config/bootstrap.yml'),
                 'config.yml' => file_get_contents(__DIR__ . '/../../Config/config.yml'),
                 'services.yml' => file_get_contents(__DIR__ . '/../../Config/services.yml'),
-                'security.yml' => '{"providers":{"ldap":{"entity":{"class":"LpDigital\\\\Bundle\\\\LdapBundle\\\\User\\\\LdapUser"}}}}'
+                'security.yml' => '{"providers":{"ldap":{"entity":{"class":"LpDigital\\\\Bundle\\\\LdapBundle\\\\Entity\\\\LdapUser"}}}}'
             ],
             'cache' => [
                 'container' => [],

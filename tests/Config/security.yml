@@ -9,7 +9,7 @@ firewalls:
 providers:
   ldap:
     entity:
-      class: LpDigital\Bundle\LdapBundle\User\LdapUser
+      class: LpDigital\Bundle\LdapBundle\Entity\LdapUser
     search_dn: good
     search_password: good
     default_roles: [ROLE_USER]

@@ -19,20 +19,20 @@
  * along with ldap-bundle. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace LpDigital\Bundle\LdapBundle\Test\User;
+namespace LpDigital\Bundle\LdapBundle\Test\Entity;
 
 use Symfony\Component\Ldap\Entry;
 
 use BackBee\Security\User;
 
-use LpDigital\Bundle\LdapBundle\User\LdapUser;
+use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
 
 /**
  * Test suite for LdapUser
  *
  * @copyright    ©2017 - Lp digital
  * @author       Charles Rouillon <charles.rouillon@lp-digital.fr>
- * @covers       LpDigital\Bundle\LdapBundle\User\LdapUser
+ * @covers       LpDigital\Bundle\LdapBundle\Entity\LdapUser
  */
 class LdapUserTest extends \PHPUnit_Framework_TestCase
 {
@@ -55,7 +55,7 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUser::getUsername()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getUsername()
      */
     public function testGetUsername()
     {
@@ -63,7 +63,7 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUser::getPassword()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getPassword()
      */
     public function testGetPassword()
     {
@@ -71,7 +71,7 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUser::eraseCredentials()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::eraseCredentials()
      */
     public function testEraseCredentials()
     {
@@ -80,7 +80,7 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUser::getRoles()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getRoles()
      */
     public function testGetRoles()
     {
@@ -88,7 +88,7 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUser::getRoles()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getRoles()
      */
     public function testGetSalt()
     {
@@ -96,8 +96,8 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUser::getEntry()
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUser::setEntry()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getEntry()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::setEntry()
      */
     public function testEntry()
     {
@@ -107,7 +107,7 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUser::getCreated()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getCreated()
      */
     public function testGetCreated()
     {
@@ -115,7 +115,7 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUser::getModified()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getModified()
      */
     public function testGetModified()
     {

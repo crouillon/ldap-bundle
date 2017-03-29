@@ -27,8 +27,8 @@ use Symfony\Component\Security\Core\Exception;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-use LpDigital\Bundle\LdapBundle\User\LdapUser;
-use LpDigital\Bundle\LdapBundle\User\LdapUserProvider;
+use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
+use LpDigital\Bundle\LdapBundle\Security\LdapUserProvider;
 
 /**
  * The authentication provider for LDAP users.

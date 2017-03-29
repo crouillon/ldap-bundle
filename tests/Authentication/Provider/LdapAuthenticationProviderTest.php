@@ -29,10 +29,10 @@ use Symfony\Component\Security\Core\User\UserChecker;
 use BackBee\Security\User;
 
 use LpDigital\Bundle\LdapBundle\Authentication\Provider\LdapAuthenticationProvider;
+use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
+use LpDigital\Bundle\LdapBundle\Security\LdapUserProvider;
 use LpDigital\Bundle\LdapBundle\Test\LdapTestCase;
 use LpDigital\Bundle\LdapBundle\Test\Mock\MockLdap;
-use LpDigital\Bundle\LdapBundle\User\LdapUser;
-use LpDigital\Bundle\LdapBundle\User\LdapUserProvider;
 
 /**
  * Test suite for LdapAuthentificationProvider

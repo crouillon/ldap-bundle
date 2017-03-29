@@ -19,7 +19,7 @@
  * along with ldap-bundle. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace LpDigital\Bundle\LdapBundle\User;
+namespace LpDigital\Bundle\LdapBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Ldap\Entry;
@@ -31,7 +31,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @copyright    ©2017 - Lp digital
  * @author       Charles Rouillon <charles.rouillon@lp-digital.fr>
  *
- * @ORM\Entity(repositoryClass="LpDigital\Bundle\LdapBundle\User\LdapUserProvider")
+ * @ORM\Entity(repositoryClass="LpDigital\Bundle\LdapBundle\Security\LdapUserProvider")
  * @ORM\HasLifecycleCallbacks
  * @ORM\Table(name="bbx_ldap_user")
  */

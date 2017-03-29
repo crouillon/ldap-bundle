@@ -35,12 +35,12 @@ use Symfony\Component\Security\Http\Authentication\DefaultAuthenticationFailureH
 use Symfony\Component\Security\Http\Authentication\DefaultAuthenticationSuccessHandler;
 use Symfony\Component\Security\Http\HttpUtils;
 
+use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
 use LpDigital\Bundle\LdapBundle\Security\Listener\LdapAuthenticationListener;
 use LpDigital\Bundle\LdapBundle\Test\LdapTestCase;
 use LpDigital\Bundle\LdapBundle\Test\Mock\MockInvalidFailureHandler;
 use LpDigital\Bundle\LdapBundle\Test\Mock\MockInvalidSuccessHandler;
 use LpDigital\Bundle\LdapBundle\Test\Mock\MockRememberMeService;
-use LpDigital\Bundle\LdapBundle\User\LdapUser;
 
 /**
  * Test suite for LdapAuthenticationListener

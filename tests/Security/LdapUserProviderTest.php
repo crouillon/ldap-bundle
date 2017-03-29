@@ -25,17 +25,17 @@ use Doctrine\ORM\Tools\SchemaTool;
 
 use BackBee\Security\User;
 
+use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
+use LpDigital\Bundle\LdapBundle\Security\LdapUserProvider;
 use LpDigital\Bundle\LdapBundle\Test\LdapTestCase;
 use LpDigital\Bundle\LdapBundle\Test\Mock\MockLdap;
-use LpDigital\Bundle\LdapBundle\User\LdapUser;
-use LpDigital\Bundle\LdapBundle\User\LdapUserProvider;
 
 /**
  * Test suite for LdapUserProvider
  *
  * @copyright    ©2017 - Lp digital
  * @author       Charles Rouillon <charles.rouillon@lp-digital.fr>
- * @covers       LpDigital\Bundle\LdapBundle\User\LdapUserProvider
+ * @covers       LpDigital\Bundle\LdapBundle\Security\LdapUserProvider
  */
 class LdapUserProviderTest extends LdapTestCase
 {
@@ -70,7 +70,7 @@ class LdapUserProviderTest extends LdapTestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::setLdap()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::setLdap()
      */
     public function testSetLdap()
     {
@@ -78,7 +78,7 @@ class LdapUserProviderTest extends LdapTestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::loadUserByUsername()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::loadUserByUsername()
      * @expectedException        \RuntimeException
      * @expectedExceptionMessage The LDAP client is not defined.
      */
@@ -89,7 +89,7 @@ class LdapUserProviderTest extends LdapTestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::loadUserByUsername()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::loadUserByUsername()
      * @expectedException        \Symfony\Component\Security\Core\Exception\UsernameNotFoundException
      * @expectedExceptionMessage User `unknown` not found.
      */
@@ -101,7 +101,7 @@ class LdapUserProviderTest extends LdapTestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::loadUserByUsername()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::loadUserByUsername()
      * @expectedException        \Symfony\Component\Security\Core\Exception\UsernameNotFoundException
      * @expectedExceptionMessage User `found` not found.
      */
@@ -113,7 +113,7 @@ class LdapUserProviderTest extends LdapTestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::loadUserByUsername()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::loadUserByUsername()
      * @expectedException        \Symfony\Component\Security\Core\Exception\UsernameNotFoundException
      * @expectedExceptionMessage More than one user found with `multiple`.
      */
@@ -125,8 +125,8 @@ class LdapUserProviderTest extends LdapTestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::loadUserByUsername()
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::loadUser()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::loadUserByUsername()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::loadUser()
      */
     public function testLoadByUsername()
     {
@@ -139,7 +139,7 @@ class LdapUserProviderTest extends LdapTestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::refreshUser()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::refreshUser()
      * @expectedException        \Symfony\Component\Security\Core\Exception\UnsupportedUserException
      * @expectedExceptionMessage Invalid user class `BackBee\Security\User`.
      */
@@ -149,7 +149,7 @@ class LdapUserProviderTest extends LdapTestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::refreshUser()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::refreshUser()
      * @expectedException        \Symfony\Component\Security\Core\Exception\UnsupportedUserException
      * @expectedExceptionMessage Invalid user `unknown`.
      */
@@ -159,7 +159,7 @@ class LdapUserProviderTest extends LdapTestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::refreshUser()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::refreshUser()
      */
     public function testRefreshUser()
     {
@@ -171,7 +171,7 @@ class LdapUserProviderTest extends LdapTestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\User\LdapUserProvider::supportsClass()
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapUserProvider::supportsClass()
      */
     public function testSupportClass()
     {
