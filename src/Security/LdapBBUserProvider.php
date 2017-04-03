@@ -118,7 +118,7 @@ class LdapBBUserProvider implements UserProviderInterface
                 $this->entityMgr->persist($bbUser);
                 $this->entityMgr->flush();
             } catch (\Exception $ex) {
-                throw new \RuntimeException('An error occured: %s', $ex->getMessage());
+                throw new \RuntimeException(sprintf('An error occured: %s', $ex->getMessage()));
             }
         }
 
