@@ -24,6 +24,8 @@ namespace LpDigital\Bundle\LdapBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+use BackBee\Security\User;
+
 /**
  * A user entry from LDAP server.
  *
@@ -82,6 +84,16 @@ class LdapUser implements UserInterface
      * @ORM\Column(name="last_connection", type="datetime", nullable=false)
      */
     protected $lastConnection;
+
+    /**
+     * The associated BackBee user for the REST firewall.
+     *
+     * @var User
+     *
+     * @ORM\Column(name="bbuser_id", nullable="true")
+     * @ORM\OneToOne(targetEntity="BackBee\Security\User")
+     */
+    protected $bbUser;
 
     /**
      * The user's password.
@@ -259,5 +271,29 @@ class LdapUser implements UserInterface
     public function getLastConnection()
     {
         return $this->lastConnection;
+    }
+
+    /**
+     * Sets the associated BackBee user for REST firewall.
+     *
+     * @param  User|null $user
+     *
+     * @return LdapUser
+     */
+    public function setBbUser(User $user = null)
+    {
+        $this->bbUser = $user;
+
+        return $this;
+    }
+
+    /**
+     * Returns the associated BackBee user for REST firewall.
+     *
+     * @return User|null
+     */
+    public function getBbUser()
+    {
+        return $this->bbUser;
     }
 }
