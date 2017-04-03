@@ -114,8 +114,12 @@ class LdapBBUserProvider implements UserProviderInterface
 
             $ldapUser->setBbUser($bbUser);
 
-            $this->entityMgr->persist($bbUser);
-            $this->entityMgr->flush();
+            try {
+                $this->entityMgr->persist($bbUser);
+                $this->entityMgr->flush();
+            } catch (\Exception $ex) {
+                throw new \RuntimeException('An error occured: %s', $ex->getMessage());
+            }
         }
 
         return $ldapUser->getBbUser();
