@@ -90,8 +90,8 @@ class LdapUser implements UserInterface
      *
      * @var User
      *
-     * @ORM\Column(name="bbuser_id", nullable=true)
-     * @ORM\OneToOne(targetEntity="BackBee\Security\User")
+     * @ORM\JoinColumn(name="bbuser_id", referencedColumnName="id", nullable=true)
+     * @ORM\ManyToOne(targetEntity="BackBee\Security\User")
      */
     protected $bbUser;
 
