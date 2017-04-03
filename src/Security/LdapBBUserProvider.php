@@ -25,6 +25,7 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
+use BackBee\ApplicationInterface;
 use BackBee\Security\User;
 
 use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
@@ -63,13 +64,12 @@ class LdapBBUserProvider implements UserProviderInterface
     /**
      * Provider constructor.
      * 
-     * @param Ldap          $ldap
-     * @param EntityManager $entityMgr
+     * @param ApplicationInterface $bbapp
      */
-    public function __construct(Ldap $ldap, EntityManager $entityMgr)
+    public function __construct(ApplicationInterface $bbapp)
     {
-        $this->ldap = $ldap;
-        $this->entityMgr = $entityMgr;
+        $this->ldap = $bbapp->getBundle('ldap');
+        $this->entityMgr = $bbapp->getEntityManager();
 
         $this->ldapProvider = $this->entityMgr->getRepository(LdapUser::class);
         $this->ldapProvider->setLdap($this->ldap);
