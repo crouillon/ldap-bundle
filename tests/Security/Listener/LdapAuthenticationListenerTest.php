@@ -111,6 +111,27 @@ class LdapAuthenticationListenerTest extends LdapTestCase
         $this->listener->handle($event);
     }
 
+    public function testAlreadyAuthenticated()
+    {
+        $request = new Request();
+        $request->setSession(new Session($this->container->get('session.storage')));
+
+        $this->bundle
+            ->getApplication()
+            ->getSecurityContext()
+            ->setToken(new UsernamePasswordToken('good', 'good', 'bundle.mockldap'));
+
+        $event = new GetResponseEvent(
+            $this->bundle->getApplication()->getController(),
+            $request,
+            HttpKernelInterface::MASTER_REQUEST
+        );
+
+        $this->listener->handle($event);
+
+        $this->assertNull($event->getResponse());
+    }
+
     /**
      * @covers LpDigital\Bundle\LdapBundle\Security\Listener\LdapAuthenticationListener::handle()
      * @covers LpDigital\Bundle\LdapBundle\Security\Listener\LdapAuthenticationListener::onSuccess()

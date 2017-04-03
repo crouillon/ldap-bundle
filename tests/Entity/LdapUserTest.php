@@ -50,8 +50,20 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->user = new LdapUser(
-                'username', 'password', ['role1', 'role2'], new User()
+            'dn',
+            'username',
+            'password',
+            ['role1', 'role2'],
+            new User()
         );
+    }
+
+    /**
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getDn()
+     */
+    public function testGetDn()
+    {
+        $this->assertEquals('dn', $this->user->getDn());
     }
 
     /**
@@ -102,8 +114,19 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
     public function testEntry()
     {
         $this->assertNull($this->user->getEntry());
-        $this->assertEquals($this->user, $this->user->setEntry(new Entry('dn')));
-        $this->assertInstanceOf(Entry::class, $this->user->getEntry());
+        $this->assertEquals($this->user, $this->user->setEntry(['cn' => 'Common Name']));
+        $this->assertTrue(is_array($this->user->getEntry()));
+    }
+
+    /**
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getAttribute()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::setAttribute()
+     */
+    public function testAttributes()
+    {
+        $this->assertNull($this->user->getAttribute('cn'));
+        $this->assertEquals($this->user, $this->user->setAttribute('cn', 'Common Name'));
+        $this->assertEquals('Common Name', $this->user->getAttribute('cn'));
     }
 
     /**
@@ -115,10 +138,15 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getModified()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getLastConnection()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::setLastConnection()
      */
-    public function testGetModified()
+    public function testGetLastConnection()
     {
-        $this->assertInstanceOf('DateTime', $this->user->getModified());
+        $this->assertInstanceOf('DateTime', $this->user->getLastConnection());
+
+        $now = new \DateTime();
+        $this->assertEquals($this->user, $this->user->setLastConnection($now));
+        $this->assertEquals($now, $this->user->getLastConnection());
     }
 }

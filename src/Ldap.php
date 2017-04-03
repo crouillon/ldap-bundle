@@ -120,13 +120,14 @@ class Ldap extends AbstractBundle
     /**
      * Returns an option value if exists, null elsewhere.
      *
-     * @param  string $name The option name.
+     * @param  string $name    The option name.
+     * @param  mixed  $default Optional, the default value to return.
      *
      * @return mixed
      */
-    public function getOption($name)
+    public function getOption($name, $default = null)
     {
-        return isset($this->options[$name]) ? $this->options[$name] : null;
+        return isset($this->options[$name]) ? $this->options[$name] : $default;
     }
 
     /**

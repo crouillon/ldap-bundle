@@ -22,7 +22,6 @@
 namespace LpDigital\Bundle\LdapBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Ldap\Entry;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -39,21 +38,30 @@ class LdapUser implements UserInterface
 {
 
     /**
-     * The username.
+     * The user's distinguished name.
      *
      * @var string
      *
      * @ORM\Id
+     * @ORM\Column(name="dn", type="string", nullable=false)
+     */
+    protected $dn;
+
+    /**
+     * The username.
+     *
+     * @var string
+     *
      * @ORM\Column(name="username", type="string", nullable=false)
      */
     protected $username;
 
     /**
-     * The data entry of the LDAP user.
+     * The stored data entry of the LDAP user.
      *
-     * @var Entry
+     * @var array
      *
-     * @ORM\Column(name="entry", type="object", nullable=true)
+     * @ORM\Column(name="entry", type="array", nullable=true)
      */
     protected $entry;
 
@@ -67,13 +75,13 @@ class LdapUser implements UserInterface
     protected $created;
 
     /**
-     * The last modification date of the user.
+     * The last connection date of the user.
      *
      * @var \DateTime
      *
-     * @ORM\Column(name="modified", type="datetime", nullable=false)
+     * @ORM\Column(name="last_connection", type="datetime", nullable=false)
      */
-    protected $modified;
+    protected $lastConnection;
 
     /**
      * The user's password.
@@ -92,18 +100,30 @@ class LdapUser implements UserInterface
     /**
      * User constructor.
      *
+     * @param string          $dn       The distinguished name..
      * @param string          $username The username.
      * @param string|null     $password Optional, the user's password.
      * @param (Role|string)[] $roles    Optional, the user's roles (default: empty).
      */
-    public function __construct($username, $password = null, array $roles = [])
+    public function __construct($dn, $username, $password = null, array $roles = [])
     {
+        $this->dn = $dn;
         $this->username = $username;
         $this->password = $password;
         $this->roles = $roles;
 
         $this->created = new \DateTime();
-        $this->modified = $this->created;
+        $this->lastConnection = $this->created;
+    }
+
+    /**
+     * Returns the user's distinguished name.
+     *
+     * @return string
+     */
+    public function getDn()
+    {
+        return $this->dn;
     }
 
     /**
@@ -145,7 +165,7 @@ class LdapUser implements UserInterface
      */
     public function getRoles()
     {
-        return $this->roles;
+        return $this->roles ?: [];
     }
 
     /**
@@ -161,7 +181,7 @@ class LdapUser implements UserInterface
     /**
      * Returns the user's LDAP entry if exists.
      *
-     * @return Entry|null
+     * @return array|null
      */
     public function getEntry()
     {
@@ -169,15 +189,42 @@ class LdapUser implements UserInterface
     }
 
     /**
-     * Sets the LDAP data entry for user.
+     * Sets the LDAP data to be stored for user.
      *
-     * @param  Entry|null $entry
+     * @param  array|null $entry
      *
      * @return LdapUser
      */
-    public function setEntry(Entry $entry = null)
+    public function setEntry(array $entry = null)
     {
         $this->entry = $entry;
+
+        return $this;
+    }
+
+    /**
+     * Returns an Ldap attribute value if exists, null elsewhere.
+     *
+     * @param  string $name The name of the attribute.
+     *
+     * @return mixed
+     */
+    public function getAttribute($name)
+    {
+        return isset($this->entry[$name]) ? $this->entry[$name] : null;
+    }
+
+    /**
+     * Sets an Ldap attribute.
+     *
+     * @param  string $name
+     * @param  mixed  $value
+     *
+     * @return LdapUser
+     */
+    public function setAttribute($name, $value)
+    {
+        $this->entry[$name] = $value;
 
         return $this;
     }
@@ -193,23 +240,24 @@ class LdapUser implements UserInterface
     }
 
     /**
-     * Returns the last modification date of the user.
+     * Returns the last connection date of the user.
      *
-     * @return \DateTime
+     * @return LdapUser
      */
-    public function getModified()
+    public function setLastConnection(\DateTime $datetime)
     {
-        return $this->created;
+        $this->lastConnection = $datetime;
+
+        return $this;
     }
 
     /**
-     * Updates the last modification date on entity update.
+     * Returns the last connection date of the user.
      *
-     * @ORM\PreUpdate
-     * @codeCoverageIgnore
+     * @return \DateTime
      */
-    public function onPreUpdate()
+    public function getLastConnection()
     {
-        $this->modified = new \DateTime();
+        return $this->lastConnection;
     }
 }

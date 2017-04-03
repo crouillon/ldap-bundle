@@ -131,11 +131,11 @@ class LdapUserProviderTest extends LdapTestCase
     public function testLoadByUsername()
     {
         $user = $this->provider
-                ->setLdap($this->mockLdap->setOption('persist_on_missing', true))
+                ->setLdap($this->mockLdap->setOption('persist_on_missing', true)->setOption('store_attributes', ['cn']))
                 ->loadUserByUsername('found');
 
         $this->assertInstanceOf(LdapUser::class, $user);
-        $this->assertInstanceOf(LdapUser::class, $this->provider->find('found'));
+        $this->assertEquals('Common Name', $user->getAttribute('cn'));
     }
 
     /**
@@ -155,7 +155,7 @@ class LdapUserProviderTest extends LdapTestCase
      */
     public function testUnknownRefreshUser()
     {
-        $this->provider->refreshUser(new LdapUser('unknown'));
+        $this->provider->refreshUser(new LdapUser('unknown', 'unknown'));
     }
 
     /**

@@ -12,3 +12,4 @@ ldap:
     base_dn: ""
     filter: "(sAMAccountName={username})"
     persist_on_missing: false
+    store_attributes: ['cn', 'description', 'name', 'mail', 'memberOf']

@@ -86,6 +86,6 @@ class MockCollection implements CollectionInterface
      */
     public function toArray()
     {
-        return [new Entry('dn')];
+        return [new Entry('dn', ['cn' => 'Common Name'])];
     }
 }

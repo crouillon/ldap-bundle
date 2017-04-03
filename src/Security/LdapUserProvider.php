@@ -114,7 +114,7 @@ class LdapUserProvider extends EntityRepository implements UserProviderInterface
             throw new UnsupportedUserException(sprintf('Invalid user class `%s`.', get_class($user)));
         }
 
-        if (null === $refreshed = $this->find($user->getUsername())) {
+        if (null === $refreshed = $this->find($user->getDn())) {
             throw new UnsupportedUserException(sprintf('Invalid user `%s`.', $user->getUsername()));
         }
 
@@ -145,16 +145,24 @@ class LdapUserProvider extends EntityRepository implements UserProviderInterface
      */
     private function loadUser($username, Entry $entry)
     {
-        if (null === $user = $this->find($username)) {
+        if (null === $user = $this->find($entry->getDn())) {
             if (true !== $this->ldap->getOption('persist_on_missing')) {
                 throw new UsernameNotFoundException(sprintf('User `%s` not found.', $username));
             }
 
-            $user = new LdapUser($username);
-            $user->setEntry($entry);
+            $user = new LdapUser($entry->getDn(), $username);
 
             $this->getEntityManager()->persist($user);
         }
+
+        $user->setLastConnection(new \DateTime());
+        foreach ($this->ldap->getOption('store_attributes', []) as $name) {
+            if ($entry->hasAttribute($name)) {
+                $user->setAttribute($name, $entry->getAttribute($name));
+            }
+        }
+
+        $this->getEntityManager()->flush($user);
 
         return $user;
     }

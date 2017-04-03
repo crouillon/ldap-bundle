@@ -70,7 +70,7 @@ class MockLdap extends Ldap
         $entries = [];
 
         if ('found' === $username) {
-            $entries[] = new Entry('good');
+            $entries[] = new Entry('good', ['cn' => 'Common Name']);
         } elseif ('multiple' === $username) {
             $entries[] = new Entry('dn1 found');
             $entries[] = new Entry('dn2 found');

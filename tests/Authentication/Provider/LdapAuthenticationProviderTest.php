@@ -22,7 +22,6 @@
 namespace LpDigital\Bundle\LdapBundle\Test\Authentication\Provider;
 
 use Doctrine\ORM\Tools\SchemaTool;
-use Symfony\Component\Ldap\Entry;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\UserChecker;
 
@@ -84,7 +83,7 @@ class LdapAuthenticationProviderTest extends LdapTestCase
     public function testEmptyPassword()
     {
         $token = new UsernamePasswordToken('', '', 'providerkey');
-        $this->invokeMethod($this->provider, 'checkAuthentication', [new LdapUser('username'), $token]);
+        $this->invokeMethod($this->provider, 'checkAuthentication', [new LdapUser('dn', 'username'), $token]);
     }
 
     /**
@@ -100,25 +99,12 @@ class LdapAuthenticationProviderTest extends LdapTestCase
 
     /**
      * @covers LpDigital\Bundle\LdapBundle\Authentication\Provider\LdapAuthenticationProvider::checkAuthentication()
-     * @expectedException        \Symfony\Component\Security\Core\Exception\UnsupportedUserException
-     * @expectedExceptionMessage Unsupported user.
-     */
-    public function testIncompleteUser()
-    {
-        $this->userProvider->setLdap(new MockLdap());
-        $token = new UsernamePasswordToken('good', 'good', 'providerkey');
-        $this->invokeMethod($this->provider, 'checkAuthentication', [new LdapUser('good'), $token]);
-    }
-
-    /**
-     * @covers LpDigital\Bundle\LdapBundle\Authentication\Provider\LdapAuthenticationProvider::checkAuthentication()
      * @expectedException        \Symfony\Component\Security\Core\Exception\AuthenticationServiceException
      * @expectedExceptionMessage No LDAP adapter defined.
      */
     public function testUndefinedLdap()
     {
-        $user = new LdapUser('good');
-        $user->setEntry(new Entry('good'));
+        $user = new LdapUser('dn', 'good');
 
         $userProvider = $this->invokeProperty($this->provider, 'userProvider');
         $this->invokeProperty($userProvider, 'ldap', 'null');
@@ -134,8 +120,7 @@ class LdapAuthenticationProviderTest extends LdapTestCase
      */
     public function testInvalidPassword()
     {
-        $user = new LdapUser('good');
-        $user->setEntry(new Entry('good'));
+        $user = new LdapUser('dn', 'good');
 
         $this->userProvider->setLdap(new MockLdap());
         $token = new UsernamePasswordToken('good', 'bad', 'providerkey');
@@ -147,8 +132,7 @@ class LdapAuthenticationProviderTest extends LdapTestCase
      */
     public function testCheckAuthentication()
     {
-        $user = new LdapUser('good');
-        $user->setEntry(new Entry('good'));
+        $user = new LdapUser('good', 'good');
 
         $this->userProvider->setLdap(new MockLdap());
         $token = new UsernamePasswordToken('good', 'good', 'providerkey');
@@ -189,7 +173,7 @@ class LdapAuthenticationProviderTest extends LdapTestCase
         $token = new UsernamePasswordToken('good', 'good', 'providerkey');
         $this->assertInstanceOf(LdapUser::class, $this->invokeMethod($this->provider, 'retrieveUser', ['found', $token]));
 
-        $user = new LdapUser('good');
+        $user = new LdapUser('dn', 'good');
         $token->setUser($user);
         $this->assertEquals($user, $this->invokeMethod($this->provider, 'retrieveUser', ['good', $token]));
     }

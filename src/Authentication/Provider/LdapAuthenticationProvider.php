@@ -78,7 +78,7 @@ class LdapAuthenticationProvider extends UserAuthenticationProvider
             throw new Exception\BadCredentialsException('The presented password cannot be empty.');
         }
 
-        if (!($user instanceof LdapUser) || null === $user->getEntry()) {
+        if (!($user instanceof LdapUser)) {
             throw new Exception\UnsupportedUserException('Unsupported user.');
         }
 
@@ -87,7 +87,7 @@ class LdapAuthenticationProvider extends UserAuthenticationProvider
         }
 
         try {
-            $this->userProvider->getLdap()->bind($user->getEntry()->getDn(), $password);
+            $this->userProvider->getLdap()->bind($user->getDn(), $password);
         } catch (\Exception $ex) {
             throw new Exception\BadCredentialsException('The presented password is invalid.', 0, $ex);
         }

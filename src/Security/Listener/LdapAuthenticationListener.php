@@ -159,6 +159,16 @@ class LdapAuthenticationListener implements ListenerInterface
 
         $username = trim($request->get($this->usernameParameter));
         $password = $request->get($this->passwordParameter);
+
+        $exists = $this->tokenStorage->getToken();
+        if (
+            empty($username)
+            && $exists instanceof UsernamePasswordToken
+            && $this->providerKey === $exists->getProviderKey()
+        ) {
+            return;
+        }
+
         $token = new UsernamePasswordToken($username, $password, $this->providerKey);
 
         $request->getSession()->set(Security::LAST_USERNAME, $username);

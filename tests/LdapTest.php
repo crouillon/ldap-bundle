@@ -89,6 +89,7 @@ class LdapTest extends LdapTestCase
     public function testOption()
     {
         $this->assertNull($this->bundle->getOption('unknown'));
+        $this->assertEquals('default', $this->bundle->getOption('unknown', 'default'));
         $this->assertEquals('(sAMAccountName={username})', $this->bundle->getOption('filter'));
 
         $this->assertEquals($this->bundle, $this->bundle->setOption('unknown', 'new'));
@@ -106,6 +107,7 @@ class LdapTest extends LdapTestCase
             'search_password' => '',
             'filter' => '(sAMAccountName={username})',
             'persist_on_missing' => false,
+            'store_attributes' => ['cn', 'description', 'name', 'mail', 'memberOf']
         ];
 
         $this->assertEquals($expectedOptions, $this->invokeProperty($this->bundle, 'options'));
