@@ -96,17 +96,21 @@ class LdapBBUserProvider implements UserProviderInterface
                 throw new UsernameNotFoundException(sprintf('User `%s` not found.', $username));
             }
 
-            $bbUser = new User(
-                $username,
-                md5(sha1($username. uniqid('', true))),
-                $ldapUser->getAttribute('cn')
-            );
-
-            $bbUser->setApiKeyEnabled(true)
+            $bbUser = new User();
+            $bbUser->setLogin($username)
+                    ->setPassword(md5(sha1($username. uniqid('', true))))
+                    ->setApiKeyEnabled(true)
                     ->setApiKeyPublic(md5($username))
                     ->setApiKeyPrivate(md5(sha1(microtime() * strlen($username))))
-                    ->setEmail($ldapUser->getAttribute('mail'))
                     ->setActivated(true);
+
+            if (null !== $cn = $ldapUser->getAttribute('cn')) {
+                $bbUser->setLastname(is_array($cn) ? reset($cn) : $cn);
+            }
+
+            if (null !== $email = $ldapUser->getAttribute('mail')) {
+                $bbUser->setEmail(is_array($email) ? reset($email) : $email);
+            }
 
             $ldapUser->setBbUser($bbUser);
 
