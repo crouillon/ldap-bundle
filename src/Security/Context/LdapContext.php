@@ -131,8 +131,7 @@ class LdapContext extends AbstractContext implements ContextInterface
         $userProvider = $this->getDefaultProvider($config);
 
         $securityConfig = $this->container->get('config')->getSecurityConfig();
-        if (
-            isset($config['provider'])
+        if (isset($config['provider'])
             && isset($securityConfig['providers'])
             && isset($securityConfig['providers'][$config['provider']])
         ) {
@@ -165,8 +164,7 @@ class LdapContext extends AbstractContext implements ContextInterface
      */
     private function createSuccessHandler(array $ldapConfig)
     {
-        if (
-            isset($ldapConfig['success_handler'])
+        if (isset($ldapConfig['success_handler'])
             && $this->container->has($ldapConfig['success_handler'])
             && ($this->container->get($ldapConfig['success_handler']) instanceof AuthenticationSuccessHandlerInterface)
         ) {
@@ -185,8 +183,7 @@ class LdapContext extends AbstractContext implements ContextInterface
      */
     private function createFailureHandler(array $ldapConfig)
     {
-        if (
-            isset($ldapConfig['failure_handler'])
+        if (isset($ldapConfig['failure_handler'])
             && $this->container->has($ldapConfig['failure_handler'])
             && ($this->container->get($ldapConfig['failure_handler']) instanceof AuthenticationFailureHandlerInterface)
         ) {

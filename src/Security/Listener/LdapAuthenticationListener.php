@@ -38,6 +38,8 @@ use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 use Symfony\Component\Security\Http\RememberMe\RememberMeServicesInterface;
 use Symfony\Component\Security\Http\SecurityEvents;
 
+use BackBee\Security\Token\BBUserToken;
+
 /**
  * Authentication listener for LDAP users.
  *
@@ -161,10 +163,12 @@ class LdapAuthenticationListener implements ListenerInterface
         $password = $request->get($this->passwordParameter);
 
         $exists = $this->tokenStorage->getToken();
-        if (
-            empty($username)
-            && $exists instanceof UsernamePasswordToken
-            && $this->providerKey === $exists->getProviderKey()
+        if ($exists instanceof BBUserToken
+            || (
+                empty($username)
+                && $exists instanceof UsernamePasswordToken
+                && $this->providerKey === $exists->getProviderKey()
+            )
         ) {
             return;
         }

@@ -22,12 +22,13 @@
 namespace LpDigital\Bundle\LdapBundle\Security;
 
 use Doctrine\ORM\EntityManager;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 use BackBee\ApplicationInterface;
+use BackBee\Security\ApiUserProviderInterface;
 use BackBee\Security\User;
 
 use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
@@ -39,7 +40,7 @@ use LpDigital\Bundle\LdapBundle\Ldap;
  * @copyright    ©2017 - Lp digital
  * @author       Charles Rouillon <charles.rouillon@lp-digital.fr>
  */
-class LdapBBUserProvider implements UserProviderInterface
+class LdapBBUserProvider implements ApiUserProviderInterface
 {
 
     /**
@@ -52,20 +53,20 @@ class LdapBBUserProvider implements UserProviderInterface
     /**
      * The current entity manageR.
      *
-     * @var EntityManager 
+     * @var EntityManager
      */
     private $entityMgr;
 
     /**
      * The LDAP user provider.
      *
-     * @var LdapUserProvider 
+     * @var LdapUserProvider
      */
     private $ldapProvider;
 
     /**
      * Provider constructor.
-     * 
+     *
      * @param ApplicationInterface $bbapp
      */
     public function __construct(ApplicationInterface $bbapp)
@@ -89,16 +90,21 @@ class LdapBBUserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username)
     {
-        $ldapUser = $this->ldapProvider->loadUserByUsername($username);
+        try {
+            $ldapUser = $this->ldapProvider->loadUserByUsername($username);
+        } catch (\Exception $ex) {
+            return $this->loadBBUserByUsername($username);
+        }
 
         if (null === $ldapUser->getBbUser()) {
-            if (true !== $this->ldap->getOption('persist_on_missing')) {
-                throw new UsernameNotFoundException(sprintf('User `%s` not found.', $username));
+            if (true !== $this->getLdap()->getOption('persist_on_missing')) {
+                return $this->loadBBUserByUsername($username);
             }
 
             $bbUser = new User();
             $bbUser->setLogin($username)
                     ->setPassword(md5(sha1($username. uniqid('', true))))
+                    ->setEmail('')
                     ->setApiKeyEnabled(true)
                     ->setApiKeyPublic(md5($username))
                     ->setApiKeyPrivate(md5(sha1(microtime() * strlen($username))))
@@ -110,6 +116,8 @@ class LdapBBUserProvider implements UserProviderInterface
 
             if (null !== $email = $ldapUser->getAttribute('mail')) {
                 $bbUser->setEmail(is_array($email) ? reset($email) : $email);
+            } else {
+                $bbUser->setEmail('');
             }
 
             $ldapUser->setBbUser($bbUser);
@@ -122,7 +130,25 @@ class LdapBBUserProvider implements UserProviderInterface
             }
         }
 
-        return $ldapUser->getBbUser();
+        if (!$ldapUser->getBbUser()->isActivated()) {
+            throw new DisabledException(sprintf('Account `%s` is disabled.', $ldapUser->getBbUser()->getUsername()));
+        }
+
+        return $ldapUser;
+    }
+
+    /**
+     * Loads a BackBee user by his username.
+     *
+     * @param  string $username
+     *
+     * @return User
+     */
+    protected function loadBBUserByUsername($username)
+    {
+        $userProvider = $this->entityMgr->getRepository(User::class);
+
+        return $userProvider->loadUserByUsername($username);
     }
 
     /**
@@ -130,7 +156,7 @@ class LdapBBUserProvider implements UserProviderInterface
      *
      * @param  UserInterface $user
      *
-     * @return LdapUser
+     * @return User
      *
      * @throws UnsupportedUserException if the account is not supported
      */
@@ -140,11 +166,33 @@ class LdapBBUserProvider implements UserProviderInterface
             throw new UnsupportedUserException(sprintf('Invalid user class `%s`.', get_class($user)));
         }
 
-        if (null === $ldapUser = $this->ldapProvider->findOneBy(['bbUser' => $user])) {
-            throw new UnsupportedUserException(sprintf('Invalid user `%s`.', $user->getUsername()));
+        return $user;
+    }
+
+    /**
+     * Loads the user for the given public API key.
+     *
+     * @param  string $publicApiKey The username
+     *
+     * @return UserInterface
+     *
+     * @throws UsernameNotFoundException if the user is not found
+     */
+    public function loadUserByPublicKey($publicApiKey)
+    {
+        $bbUser = $this->entityMgr
+                    ->getRepository(User::class)
+                    ->findOneBy(['_api_key_public' => $publicApiKey]);
+
+        if (null === $bbUser) {
+            throw new UsernameNotFoundException(sprintf('Unknown public API key `%s`.', $publicApiKey));
         }
 
-        return $ldapUser->getBbUser();
+        if (!$bbUser->isActivated()) {
+            throw new DisabledException(sprintf('Account `%s` is disabled.', $bbUser->getUsername()));
+        }
+
+        return $bbUser;
     }
 
     /**
@@ -157,5 +205,17 @@ class LdapBBUserProvider implements UserProviderInterface
     public function supportsClass($class)
     {
         return User::class === $class;
+    }
+
+    /**
+     * Returns the current Ldap instance.
+     *
+     * @return Ldap|null
+     *
+     * @codeCoverageIgnore
+     */
+    public function getLdap()
+    {
+        return $this->ldapProvider->getLdap();
     }
 }

@@ -35,6 +35,8 @@ use Symfony\Component\Security\Http\Authentication\DefaultAuthenticationFailureH
 use Symfony\Component\Security\Http\Authentication\DefaultAuthenticationSuccessHandler;
 use Symfony\Component\Security\Http\HttpUtils;
 
+use BackBee\Security\Token\BBUserToken;
+
 use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
 use LpDigital\Bundle\LdapBundle\Security\Listener\LdapAuthenticationListener;
 use LpDigital\Bundle\LdapBundle\Test\LdapTestCase;
@@ -111,6 +113,9 @@ class LdapAuthenticationListenerTest extends LdapTestCase
         $this->listener->handle($event);
     }
 
+    /**
+     * @covers LpDigital\Bundle\LdapBundle\Security\Listener\LdapAuthenticationListener::handle()
+     */
     public function testAlreadyAuthenticated()
     {
         $request = new Request();
@@ -120,6 +125,30 @@ class LdapAuthenticationListenerTest extends LdapTestCase
             ->getApplication()
             ->getSecurityContext()
             ->setToken(new UsernamePasswordToken('good', 'good', 'bundle.mockldap'));
+
+        $event = new GetResponseEvent(
+            $this->bundle->getApplication()->getController(),
+            $request,
+            HttpKernelInterface::MASTER_REQUEST
+        );
+
+        $this->listener->handle($event);
+
+        $this->assertNull($event->getResponse());
+    }
+
+    /**
+     * @covers LpDigital\Bundle\LdapBundle\Security\Listener\LdapAuthenticationListener::handle()
+     */
+    public function testBBAuthenticated()
+    {
+        $request = new Request();
+        $request->setSession(new Session($this->container->get('session.storage')));
+
+        $this->bundle
+            ->getApplication()
+            ->getSecurityContext()
+            ->setToken(new BBUserToken());
 
         $event = new GetResponseEvent(
             $this->bundle->getApplication()->getController(),
@@ -190,7 +219,10 @@ class LdapAuthenticationListenerTest extends LdapTestCase
         $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('found', $request->getSession()->get(Security::LAST_USERNAME));
-        $this->assertInstanceof(BadCredentialsException::class, $request->getSession()->get(Security::AUTHENTICATION_ERROR)->getPrevious());
+        $this->assertInstanceof(
+            BadCredentialsException::class,
+            $request->getSession()->get(Security::AUTHENTICATION_ERROR)->getPrevious()
+        );
         $this->assertNull($this->bundle->getApplication()->getSecurityContext()->getToken());
     }
 

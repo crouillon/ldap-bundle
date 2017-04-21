@@ -172,6 +172,5 @@ class Ldap extends AbstractBundle
      */
     public function stop()
     {
-
     }
 }

@@ -21,9 +21,9 @@
 
 namespace LpDigital\Bundle\LdapBundle\Security\Handler;
 
-use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 
 use BackBee\Controller\Exception\FrontControllerException;
 

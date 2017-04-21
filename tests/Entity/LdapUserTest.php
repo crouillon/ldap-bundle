@@ -21,8 +21,6 @@
 
 namespace LpDigital\Bundle\LdapBundle\Test\Entity;
 
-use Symfony\Component\Ldap\Entry;
-
 use BackBee\Security\User;
 
 use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
@@ -148,5 +146,18 @@ class LdapUserTest extends \PHPUnit_Framework_TestCase
         $now = new \DateTime();
         $this->assertEquals($this->user, $this->user->setLastConnection($now));
         $this->assertEquals($now, $this->user->getLastConnection());
+    }
+
+    /**
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::getBbUser()
+     * @covers LpDigital\Bundle\LdapBundle\Entity\LdapUser::setBbUser()
+     */
+    public function testBBUser()
+    {
+        $bbUser = new User();
+
+        $this->assertNull($this->user->getBbUser());
+        $this->assertEquals($this->user, $this->user->setBbUser($bbUser));
+        $this->assertEquals($bbUser, $this->user->getBbUser());
     }
 }

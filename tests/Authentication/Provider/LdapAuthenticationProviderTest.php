@@ -71,7 +71,9 @@ class LdapAuthenticationProviderTest extends LdapTestCase
         $this->userProvider = $this->bundle->getEntityManager()->getRepository(LdapUser::class);
 
         $this->provider = new LdapAuthenticationProvider(
-                $this->userProvider, new UserChecker(), 'providerkey'
+            $this->userProvider,
+            new UserChecker(),
+            'providerkey'
         );
     }
 
@@ -171,7 +173,10 @@ class LdapAuthenticationProviderTest extends LdapTestCase
         $mockLdap = new MockLdap();
         $this->userProvider->setLdap($mockLdap->setOption('persist_on_missing', true));
         $token = new UsernamePasswordToken('good', 'good', 'providerkey');
-        $this->assertInstanceOf(LdapUser::class, $this->invokeMethod($this->provider, 'retrieveUser', ['found', $token]));
+        $this->assertInstanceOf(
+            LdapUser::class,
+            $this->invokeMethod($this->provider, 'retrieveUser', ['found', $token])
+        );
 
         $user = new LdapUser('dn', 'good');
         $token->setUser($user);

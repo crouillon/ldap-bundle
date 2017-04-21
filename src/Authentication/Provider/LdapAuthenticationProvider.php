@@ -54,8 +54,12 @@ class LdapAuthenticationProvider extends UserAuthenticationProvider
      * @param string               $providerKey                The provider key.
      * @param bool                 $hideUserNotFoundExceptions Whether to hide user not found exception or not.
      */
-    public function __construct(LdapUserProvider $userProvider, UserCheckerInterface $userChecker, $providerKey, $hideUserNotFoundExceptions = true)
-    {
+    public function __construct(
+        LdapUserProvider $userProvider,
+        UserCheckerInterface $userChecker,
+        $providerKey,
+        $hideUserNotFoundExceptions = true
+    ) {
         parent::__construct($userChecker, $providerKey, $hideUserNotFoundExceptions);
 
         $this->userProvider = $userProvider;

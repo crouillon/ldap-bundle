@@ -13,6 +13,9 @@ providers:
     search_dn: good
     search_password: good
     default_roles: [ROLE_USER]
+  bb_ldap:
+    webservice:
+      class: LpDigital\Bundle\LdapBundle\Security\LdapBBUserProvider
 
 contexts:
   LpDigital\Bundle\LdapBundle\Security\Context:

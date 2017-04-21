@@ -40,7 +40,6 @@ class MockLdap extends Ldap
      */
     public function __construct()
     {
-
     }
 
     /**
@@ -71,6 +70,8 @@ class MockLdap extends Ldap
 
         if ('found' === $username) {
             $entries[] = new Entry('good', ['cn' => 'Common Name']);
+        } elseif ('disabled' === $username) {
+            $entries[] = new Entry('disabled', ['cn' => 'Disabled Name']);
         } elseif ('multiple' === $username) {
             $entries[] = new Entry('dn1 found');
             $entries[] = new Entry('dn2 found');
