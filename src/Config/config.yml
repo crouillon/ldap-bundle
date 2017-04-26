@@ -4,6 +4,7 @@ bundle:
     author: Charles Rouillon <charles.rouillon@lp-digital.fr>
     version: 1.0
     enable: true
+    thumbnail: /%bbapp.routing.resource_uri_prefix%/img/contents/picto-extnd-ldap.png
     config_per_site: true
 
 ldap:

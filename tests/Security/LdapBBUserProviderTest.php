@@ -138,11 +138,26 @@ class LdapBBUserProviderTest extends LdapTestCase
      */
     public function testNotPersistedLoadByUsername()
     {
+        $this->mockLdap->setOption('persist_on_missing', true)->setOption('store_attributes', ['cn', 'mail']);
+        $user = $this->provider->loadUserByUsername('found');
+
+        $this->assertInstanceOf(User::class, $user->getBbUser());
+        $this->assertEquals('found', $user->getBbUser()->getUsername());
+        $this->assertEquals('mail@example.com', $user->getBbUser()->getEmail());
+        $this->assertEquals('Common Name', $user->getBbUser()->getLastname());
+    }
+
+    /**
+     * @covers LpDigital\Bundle\LdapBundle\Security\LdapBBUserProvider::loadUserByUsername()
+     */
+    public function testNotPersistedLoadByUsernameWithoutEmail()
+    {
         $this->mockLdap->setOption('persist_on_missing', true)->setOption('store_attributes', ['cn']);
         $user = $this->provider->loadUserByUsername('found');
 
         $this->assertInstanceOf(User::class, $user->getBbUser());
         $this->assertEquals('found', $user->getBbUser()->getUsername());
+        $this->assertEquals('', $user->getBbUser()->getEmail());
         $this->assertEquals('Common Name', $user->getBbUser()->getLastname());
     }
 

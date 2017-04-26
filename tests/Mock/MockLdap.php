@@ -69,7 +69,7 @@ class MockLdap extends Ldap
         $entries = [];
 
         if ('found' === $username) {
-            $entries[] = new Entry('good', ['cn' => 'Common Name']);
+            $entries[] = new Entry('good', ['cn' => 'Common Name', 'mail' => 'mail@example.com']);
         } elseif ('disabled' === $username) {
             $entries[] = new Entry('disabled', ['cn' => 'Disabled Name']);
         } elseif ('multiple' === $username) {
