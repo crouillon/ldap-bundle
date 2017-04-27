@@ -146,7 +146,7 @@ class LdapUserProvider extends EntityRepository implements UserProviderInterface
     private function loadUser($username, Entry $entry)
     {
         if (null === $user = $this->find($entry->getDn())) {
-            if (true !== $this->ldap->getOption('persist_on_missing')) {
+            if (true !== $this->ldap->persistOnMissing()) {
                 throw new UsernameNotFoundException(sprintf('User `%s` not found.', $username));
             }
 
@@ -156,7 +156,7 @@ class LdapUserProvider extends EntityRepository implements UserProviderInterface
         }
 
         $user->setLastConnection(new \DateTime());
-        foreach ($this->ldap->getOption('store_attributes', []) as $name) {
+        foreach ($this->ldap->getStoredAttributes() as $name) {
             if ($entry->hasAttribute($name)) {
                 $user->setAttribute($name, $entry->getAttribute($name));
             }

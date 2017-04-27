@@ -97,7 +97,7 @@ class LdapBBUserProvider implements ApiUserProviderInterface
         }
 
         if (null === $ldapUser->getBbUser()) {
-            if (true !== $this->getLdap()->getOption('persist_on_missing')) {
+            if (true !== $this->getLdap()->persistOnMissing()) {
                 return $this->loadBBUserByUsername($username);
             }
 

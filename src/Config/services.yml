@@ -1,16 +1,3 @@
-parameters:
-    bundle.ldap.connection.options:
-        host: localhost
-        port: 389
-        version: 3
-        encryption: none
-
 services:
-    bundle.ldap.adapter:
-        class: Symfony\Component\Ldap\Adapter\ExtLdap\Adapter
-        arguments: [%bundle.ldap.connection.options%]
-    bundle.ldap.client:
-        class: Symfony\Component\Ldap\Ldap
-        arguments: [@bundle.ldap.adapter]
     bundle.ldap.forbidden_handler:
         class: LpDigital\Bundle\LdapBundle\Security\Handler\ForbiddenFailureHandler

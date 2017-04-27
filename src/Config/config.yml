@@ -4,13 +4,17 @@ bundle:
     author: Charles Rouillon <charles.rouillon@lp-digital.fr>
     version: 1.0
     enable: true
+    admin_controller:
+        admin: LpDigital\Bundle\LdapBundle\Controller\AdminController
+    admin_entry_point: admin.index
     thumbnail: /%bbapp.routing.resource_uri_prefix%/img/contents/picto-extnd-ldap.png
     config_per_site: true
+    bundle_loader_recipes:
+        template: [LpDigital\Bundle\LdapBundle\Ldap, loadViews]
 
-ldap:
-    search_dn: ""
-    search_password: ""
-    base_dn: ""
-    filter: "(sAMAccountName={username})"
+ldap: []
+
+parameters:
     persist_on_missing: false
-    store_attributes: ['cn', 'description', 'name', 'mail', 'memberOf']
+    store_attributes: []
+    default_backbee_groups: []

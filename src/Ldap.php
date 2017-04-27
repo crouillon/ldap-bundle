@@ -26,8 +26,11 @@ use Symfony\Component\Ldap\Entry;
 use Symfony\Component\Ldap\Exception\LdapException;
 use Symfony\Component\Ldap\Ldap as LdapClient;
 
+use BackBee\ApplicationInterface;
 use BackBee\Bundle\AbstractBundle;
-use BackBee\DependencyInjection\Container;
+use BackBee\Config\Config;
+use BackBee\Security\Group;
+use BackBee\Utils\Collection\Collection;
 
 /**
  * Ldap bundle entry point.
@@ -39,11 +42,17 @@ class Ldap extends AbstractBundle
 {
 
     /**
-     * The current BackBee services container.
+     * Default options.
      *
-     * @var Container
+     * @var array
      */
-    private $container;
+    private $defaultOptions = [
+        'base_dn' => '',
+        'search_dn' => '',
+        'search_password' => '',
+        'filter' => '(sAMAccountName={username})',
+        'persist_on_missing' => false,
+    ];
 
     /**
      * Current bundle options.
@@ -53,11 +62,32 @@ class Ldap extends AbstractBundle
     protected $options;
 
     /**
-     * A LDAP client.
+     * Is the LDAP user persisted if he's missing in BackBee?
      *
-     * @var LdapClient
+     * @var boolean
      */
-    protected $ldapClient;
+    protected $persistOnMissing = false;
+
+    /**
+     * Array of LDAP attributes to store.
+     *
+     * @var string[]
+     */
+    protected $storedAttributes = [];
+
+    /**
+     * Array of default BackBee groups for new user.
+     *
+     * @var Group[]
+     */
+    protected $defaultBackBeeGroups = [];
+
+    /**
+     * An LDAP clients collection.
+     *
+     * @var LdapClient[]
+     */
+    protected $ldapClients;
 
     /**
      * Checks a connection bound to the ldap.
@@ -69,7 +99,19 @@ class Ldap extends AbstractBundle
      */
     public function bind($dn, $password)
     {
-        $this->getLdapClient()->bind($dn, $password);
+        $lastException = null;
+
+        foreach ($this->getLdapClients() as $ldapClient) {
+            try {
+                $ldapClient->bind($dn, $password);
+            } catch (\Exeption $ex) {
+                $lastException = $ex;
+            }
+
+            return;
+        }
+
+        throw $lastException;
     }
 
     /**
@@ -83,23 +125,40 @@ class Ldap extends AbstractBundle
      */
     public function query($username)
     {
-        $this->getLdapClient()->bind(
-            $this->getOption('search_dn'),
-            $this->getOption('search_password')
-        );
+        $results = [];
+        $lastException = null;
 
-        $query = str_replace(
-            '{username}',
-            $this->getLdapClient()->escape($username, '', LDAP_ESCAPE_FILTER),
-            $this->getOption('filter')
-        );
+        foreach ($this->getLdapClients() as $name => $ldapClient) {
+            $ldapClient->bind(
+                $this->getOption($name, 'search_dn'),
+                $this->getOption($name, 'search_password')
+            );
 
-        $results = $this
-            ->getLdapClient()
-            ->query($this->getOption('base_dn'), $query)
-            ->execute();
+            $query = str_replace(
+                '{username}',
+                $ldapClient->escape($username, '', LDAP_ESCAPE_FILTER),
+                $this->getOption($name, 'filter')
+            );
 
-        return $results instanceof CollectionInterface ? $results->toArray() : $results;
+            try {
+                $results = $ldapClient
+                    ->query($this->getOption($name, 'base_dn'), $query)
+                    ->execute();
+            } catch (\Exception $ex) {
+                $results = [];
+                $lastException = $ex;
+            }
+
+            if ($results instanceof CollectionInterface && 0 < count($results)) {
+                return $results->toArray();
+            }
+        }
+
+        if (null !== $lastException) {
+            throw $lastException;
+        }
+
+        return $results;
     }
 
     /**
@@ -125,23 +184,66 @@ class Ldap extends AbstractBundle
      *
      * @return mixed
      */
-    public function getOption($name, $default = null)
+    public function getOption($server, $name, $default = null)
     {
-        return isset($this->options[$name]) ? $this->options[$name] : $default;
+        if (!isset($this->options[$server])) {
+            return $default;
+        }
+
+        return isset($this->options[$server][$name]) ? $this->options[$server][$name] : $default;
     }
 
     /**
-     * Returns the LDAP client service.
+     * Returns the LDAP clients collection.
      *
-     * @return LdapClient
+     * @return LdapClient[]
      */
-    protected function getLdapClient()
+    protected function getLdapClients()
     {
-        if (null === $this->ldapClient && $this->container->has('bundle.ldap.client')) {
-            $this->ldapClient = $this->container->get('bundle.ldap.client');
+        if (empty($this->ldapClients)) {
+            foreach ((array) $this->getConfig()->getLdapConfig() as $name => $server) {
+                $adapter = Collection::get($server, 'adapter', 'ext_ldap');
+                $options = Collection::get($server, 'options', []);
+
+                $this->ldapClients[$name] = LdapClient::create($adapter, $options);
+                $this->options[$name] = array_merge(
+                    $this->defaultOptions,
+                    $server
+                );
+            }
         }
 
-        return $this->ldapClient;
+        return $this->ldapClients;
+    }
+
+    /**
+     * Is the LDAP user persisted if he's missing in BackBee?
+     *
+     * @return boolean
+     */
+    public function persistOnMissing()
+    {
+        return $this->persistOnMissing;
+    }
+
+    /**
+     * Array of LDAP attributes to store.
+     *
+     * @return string[]
+     */
+    public function getStoredAttributes()
+    {
+        return $this->storedAttributes;
+    }
+
+    /**
+     * Array of default BackBee groups for new user.
+     *
+     * @var Group[]
+     */
+    public function getDefaultBackBeeGroups()
+    {
+        return $this->defaultBackBeeGroups;
     }
 
     /**
@@ -149,20 +251,19 @@ class Ldap extends AbstractBundle
      */
     public function start()
     {
-        $this->container = $this->getApplication()->getContainer();
+        $this->persistOnMissing = true === Collection::get($this->getConfig()->getParametersConfig(), 'persist_on_missing', false);
+        $this->storedAttributes = (array) Collection::get($this->getConfig()->getParametersConfig(), 'store_attributes', []);
 
-        $defaultOptions = [
-            'base_dn' => '',
-            'search_dn' => '',
-            'search_password' => '',
-            'filter' => '(sAMAccountName={username})',
-            'persist_on_missing' => false,
-        ];
+        $defaultGroups = (array) Collection::get($this->getConfig()->getParametersConfig(), 'default_backbee_groups', []);
+        foreach ($defaultGroups as $defaultGroup) {
+            if (null === $group = $this->getEntityManager()->find(Group::class, $defaultGroup)) {
+                $group = $this->getEntityManager()->getRepository(Group::class)->findOneBy(['_name' => $defaultGroup]);
+            }
 
-        $this->options = array_merge(
-            $defaultOptions,
-            $this->getConfig()->getLdapConfig()
-        );
+            if (null !== $group) {
+                $this->defaultBackBeeGroups[$group->getId()] = $group;
+            }
+        }
     }
 
     /**
@@ -173,4 +274,19 @@ class Ldap extends AbstractBundle
     public function stop()
     {
     }
+
+    /**
+     * Adds the bunde views folder to the script directories of the BackBee renderer.
+     *
+     * @param ApplicationInterface $application
+     * @param Config               $config
+     */
+    public static function loadViews(ApplicationInterface $application, Config $config)
+    {
+        if ($application->getContainer()->has('renderer')) {
+            $renderer = $application->getContainer()->get('renderer');
+            $renderer->addScriptDir(realpath(__DIR__ . '/../views'));
+        }
+    }
+
 }
