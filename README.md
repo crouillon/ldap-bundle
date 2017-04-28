@@ -35,7 +35,7 @@ Add the following line at the end of the file:
 ```yaml
 # bundles configuration - repository/Config/bundles.yml
 ...
-hauth: LpDigital\Bundle\LdapBundle\Ldap
+ldap: LpDigital\Bundle\LdapBundle\Ldap
 ```
 
 Save and close the file.
@@ -47,11 +47,55 @@ Then launch the command to update database:
 
 Depending on your configuration, cache may need to be clear.
 
+Configuring the bundle
+----------------------
 
-Enable LDAP on a front-side firewall for one website
-----------------------------------------------------
+You can configure the bundle either throw the adminitrative interface or by creating and editing the file `repository/Config/bundle/ldap/config.yml`.
 
-To enable an LDAP authentication on a firewall, edit the file `repository/Config/security.yml and declare a new UserProvider allowing LDAP querying.
+`Note that ldap-bunle allows you to define several LDAP servers that will be chained while querying LDAP.`
+
+```yaml
+# config.yml
+parameters:
+  persist_on_missing: true                                            # if true accept "unknown" new user (default: false)
+  store_attributes: ['cn', 'description', 'name', 'mail', 'memberOf'] # the LDAP attributes to store
+  default_backbee_groups: []                                          # when persisted a BackBee user can be add to groups (id or name)
+
+ldap:
+  server1:
+    options:
+      host: ad1.example.com
+      port: 389
+      version: 3
+      encryption: none
+    base_dn: 'CN=Users,DC=www,DC=ad,DC=sample,DC=com'
+    search_dn: 'CN=ReadOnly,DC=www,DC=ad,DC=sample,DC=com'
+    search_password: ***********
+    filter: '(sAMAccountName={username})'
+  ...
+
+# overriding by site is also available
+override_site:
+    site1_uid_or_label:
+        ldap:
+          server1:
+            options:
+              host: ad1.example.com
+              port: 389
+              version: 3
+              encryption: none
+            base_dn: 'CN=Users,DC=www,DC=ad,DC=sample,DC=com'
+            search_dn: 'CN=ReadOnly,DC=www,DC=ad,DC=sample,DC=com'
+            search_password: ***********
+            filter: '(sAMAccountName={username})'
+          ...
+    ...
+```
+
+Enable LDAP on a front-side firewall for a website
+--------------------------------------------------
+
+To enable an LDAP authentication on a firewall, edit the file `repository/Config/security.yml and declare a new user provider allowing LDAP querying.
 
 ```yaml
 # security.yml
@@ -67,33 +111,41 @@ providers:
     entity:
       class: LpDigital\Bundle\LdapBundle\Entity\LdapUser
     default_roles: [ROLE_USER]
-    base_dn: 'CN=Users,DC=www,DC=ad,DC=sample,DC=com'          # optional, can be defined globally in bundle configuration
-    search_dn: 'CN=ReadOnly,DC=www,DC=ad,DC=sample,DC=com'     # optional, can be defined globally in bundle configuration
-    search_password: ***********                               # optional, can be defined globally in bundle configuration
-    filter: '(sAMAccountName={username})'                      # optional, can be defined globally in bundle configuration
 ```
 
-To define global configuration, create and edit file `repository/Config/bundle/ldap/config.yml`
+Enable LDAP on a back-side firewall for a website
+-------------------------------------------------
+
+To enable an LDAP authentication on a the BackBee contributive firewall, edit the file `repository/Config/security.yml and declare a new UserProvider allowing LDAP querying.
+
+`Note that the native BackBee authentication remains available.`
 
 ```yaml
-# config.yml
-ldap:
-    base_dn: 'CN=Users,DC=www,DC=ad,DC=sample,DC=com'
-    search_dn: 'CN=ReadOnly,DC=www,DC=ad,DC=sample,DC=com'
-    search_password: ***********
-    filter: '(sAMAccountName={username})'
-    persist_on_missing: true                                            # if true accept "unknown" new user (default: false)
-    store_attributes: ['cn', 'description', 'name', 'mail', 'memberOf'] # the LDAP attributes to store
-
-# overriding by site is also available
-override_site:
-    site1_uid:
+# security.yml
+firewalls:
+  rest_api_area:
+    pattern: ^/rest
+    requirements:
+        HTTP-X-API-SIGNATURE: \w+
+        HTTP-X-API-KEY: \w+
+    provider: public_key
+    public_key: ~
+    restful:
         ldap:
-            base_dn: 'CN=Users,DC=www,DC=ad,DC=sample,DC=com'
-            search_dn: 'CN=ReadOnly,DC=www,DC=ad,DC=sample,DC=com'
-            search_password: ***********
-            filter: '(sAMAccountName={username})'
+          service: bundle.ldap
+        provider: bb_ldap
+        nonce_dir: security/nonces
+        lifetime: 1800
+        use_registry: true
+    anonymous: ~
+    ...
+providers:
+  bb_ldap:
+    webservice:
+      class: LpDigital\Bundle\LdapBundle\Security\LdapBBUserProvider
+  ...
 ```
+
 
 Depending on your configuration, cache may need to be clear.
 
