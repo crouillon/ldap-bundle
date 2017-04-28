@@ -66,21 +66,21 @@ class Ldap extends AbstractBundle
      *
      * @var boolean
      */
-    protected $persistOnMissing = false;
+    protected $persistOnMissing;
 
     /**
      * Array of LDAP attributes to store.
      *
      * @var string[]
      */
-    protected $storedAttributes = [];
+    protected $storedAttributes;
 
     /**
      * Array of default BackBee groups for new user.
      *
      * @var Group[]
      */
-    protected $defaultBackBeeGroups = [];
+    protected $defaultBackBeeGroups;
 
     /**
      * An LDAP clients collection.
@@ -223,7 +223,7 @@ class Ldap extends AbstractBundle
      */
     public function persistOnMissing()
     {
-        return $this->persistOnMissing;
+        return true === Collection::get($this->getConfig()->getParametersConfig(), 'persist_on_missing', false);
     }
 
     /**
@@ -233,7 +233,7 @@ class Ldap extends AbstractBundle
      */
     public function getStoredAttributes()
     {
-        return $this->storedAttributes;
+        return (array) Collection::get($this->getConfig()->getParametersConfig(), 'store_attributes', []);
     }
 
     /**
@@ -243,6 +243,19 @@ class Ldap extends AbstractBundle
      */
     public function getDefaultBackBeeGroups()
     {
+        if (null === $this->defaultBackBeeGroups) {
+            $defaultGroups = (array) Collection::get($this->getConfig()->getParametersConfig(), 'default_backbee_groups', []);
+            foreach ($defaultGroups as $defaultGroup) {
+                if (null === $group = $this->getEntityManager()->find(Group::class, $defaultGroup)) {
+                    $group = $this->getEntityManager()->getRepository(Group::class)->findOneBy(['_name' => $defaultGroup]);
+                }
+
+                if (null !== $group) {
+                    $this->defaultBackBeeGroups[$group->getId()] = $group;
+                }
+            }
+        }
+
         return $this->defaultBackBeeGroups;
     }
 
@@ -251,19 +264,6 @@ class Ldap extends AbstractBundle
      */
     public function start()
     {
-        $this->persistOnMissing = true === Collection::get($this->getConfig()->getParametersConfig(), 'persist_on_missing', false);
-        $this->storedAttributes = (array) Collection::get($this->getConfig()->getParametersConfig(), 'store_attributes', []);
-
-        $defaultGroups = (array) Collection::get($this->getConfig()->getParametersConfig(), 'default_backbee_groups', []);
-        foreach ($defaultGroups as $defaultGroup) {
-            if (null === $group = $this->getEntityManager()->find(Group::class, $defaultGroup)) {
-                $group = $this->getEntityManager()->getRepository(Group::class)->findOneBy(['_name' => $defaultGroup]);
-            }
-
-            if (null !== $group) {
-                $this->defaultBackBeeGroups[$group->getId()] = $group;
-            }
-        }
     }
 
     /**
