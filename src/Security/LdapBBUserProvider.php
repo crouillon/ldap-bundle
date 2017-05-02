@@ -101,29 +101,8 @@ class LdapBBUserProvider implements ApiUserProviderInterface
                 return $this->loadBBUserByUsername($username);
             }
 
-            $bbUser = new User();
-            $bbUser->setLogin($username)
-                    ->setPassword(md5(sha1($username. uniqid('', true))))
-                    ->setEmail('')
-                    ->setApiKeyEnabled(true)
-                    ->setApiKeyPublic(md5($username))
-                    ->setApiKeyPrivate(md5(sha1(microtime() * strlen($username))))
-                    ->setActivated(true);
-
-            if (null !== $cn = $ldapUser->getAttribute('cn')) {
-                $bbUser->setLastname(is_array($cn) ? reset($cn) : $cn);
-            }
-
-            if (null !== $email = $ldapUser->getAttribute('mail')) {
-                $bbUser->setEmail(is_array($email) ? reset($email) : $email);
-            } else {
-                $bbUser->setEmail('');
-            }
-
-            $ldapUser->setBbUser($bbUser);
-
             try {
-                $this->entityMgr->persist($bbUser);
+                $this->createBbUser($username, $ldapUser);
                 $this->entityMgr->flush();
             } catch (\Exception $ex) {
                 throw new \RuntimeException(sprintf('An error occured: %s', $ex->getMessage()));
@@ -149,6 +128,46 @@ class LdapBBUserProvider implements ApiUserProviderInterface
         $userProvider = $this->entityMgr->getRepository(User::class);
 
         return $userProvider->loadUserByUsername($username);
+    }
+
+    /**
+     * Create a new BackBee user from a connected LdapUser.
+     *
+     * @param  string   $username
+     * @param  LdapUser $ldapUser
+     *
+     * @return User
+     */
+    private function createBbUser($username, LdapUser $ldapUser)
+    {
+        $bbUser = new User();
+
+        $bbUser->setLogin($username)
+                ->setPassword(md5(sha1($username. uniqid('', true))))
+                ->setEmail('')
+                ->setApiKeyEnabled(true)
+                ->setApiKeyPublic(md5($username))
+                ->setApiKeyPrivate(md5(sha1(microtime() * strlen($username))))
+                ->setActivated(true);
+
+        if (null !== $cn = $ldapUser->getAttribute('cn')) {
+            $bbUser->setLastname(is_array($cn) ? reset($cn) : $cn);
+        }
+
+        if (null !== $email = $ldapUser->getAttribute('mail')) {
+            $bbUser->setEmail(is_array($email) ? reset($email) : $email);
+        } else {
+            $bbUser->setEmail('');
+        }
+
+        $this->entityMgr->persist($bbUser);
+        $ldapUser->setBbUser($bbUser);
+
+        foreach( $this->getLdap()->getDefaultBackBeeGroups() as $group) {
+            $group->addUser($bbUser);
+        }
+
+        return $bbUser;
     }
 
     /**
