@@ -1,4 +1,0 @@
-services:
-    bundle.ldap.adapter:
-        class: LpDigital\Bundle\LdapBundle\Test\Mock\MockAdapter
-        arguments: [%bundle.ldap.connection.options%]

@@ -51,11 +51,6 @@ class LdapTestCase extends \PHPUnit_Framework_TestCase
         $mockConfig = [
             'ClassContent' => [],
             'Config' => [
-                'bundle' => [
-                    'ldap' => [
-                        'services.yml' => file_get_contents(__DIR__ . '/Config/bundle/ldap/services.yml')
-                    ]
-                ],
                 'bootstrap.yml' => file_get_contents(__DIR__ . '/Config/bootstrap.yml'),
                 'config.yml' => file_get_contents(__DIR__ . '/Config/config.yml'),
                 'services.yml' => file_get_contents(__DIR__ . '/Config/services.yml'),

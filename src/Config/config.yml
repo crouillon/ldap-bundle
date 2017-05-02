@@ -2,7 +2,7 @@ bundle:
     name: LDAP Authentication bundle
     description: ldap-bundle enables to easily implement LDAP authentication on BackBee instances.
     author: Charles Rouillon <charles.rouillon@lp-digital.fr>
-    version: 1.0
+    version: 0.1
     enable: true
     admin_controller:
         admin: LpDigital\Bundle\LdapBundle\Controller\AdminController

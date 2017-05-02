@@ -25,7 +25,6 @@ use Symfony\Component\Ldap\Adapter\CollectionInterface;
 use Symfony\Component\Ldap\Entry;
 use Symfony\Component\Ldap\Exception\LdapException;
 use Symfony\Component\Ldap\Ldap as LdapClient;
-
 use BackBee\ApplicationInterface;
 use BackBee\Bundle\AbstractBundle;
 use BackBee\Config\Config;
@@ -130,20 +129,17 @@ class Ldap extends AbstractBundle
 
         foreach ($this->getLdapClients() as $name => $ldapClient) {
             $ldapClient->bind(
-                $this->getOption($name, 'search_dn'),
-                $this->getOption($name, 'search_password')
+                    $this->getOption($name, 'search_dn'), $this->getOption($name, 'search_password')
             );
 
             $query = str_replace(
-                '{username}',
-                $ldapClient->escape($username, '', LDAP_ESCAPE_FILTER),
-                $this->getOption($name, 'filter')
+                    '{username}', $ldapClient->escape($username, '', LDAP_ESCAPE_FILTER), $this->getOption($name, 'filter')
             );
 
             try {
                 $results = $ldapClient
-                    ->query($this->getOption($name, 'base_dn'), $query)
-                    ->execute();
+                        ->query($this->getOption($name, 'base_dn'), $query)
+                        ->execute();
             } catch (\Exception $ex) {
                 $results = [];
                 $lastException = $ex;
@@ -171,7 +167,12 @@ class Ldap extends AbstractBundle
      */
     public function setOption($name, $value)
     {
-        $this->options[$name] = $value;
+        if (is_array($this->options)) {
+            foreach ($this->options as &$options) {
+                $options[$name] = $value;
+            }
+            unset($options);
+        }
 
         return $this;
     }
@@ -179,6 +180,7 @@ class Ldap extends AbstractBundle
     /**
      * Returns an option value if exists, null elsewhere.
      *
+     * @param  string $server  The LDAP server name.
      * @param  string $name    The option name.
      * @param  mixed  $default Optional, the default value to return.
      *
@@ -201,15 +203,15 @@ class Ldap extends AbstractBundle
     protected function getLdapClients()
     {
         if (empty($this->ldapClients)) {
+            $this->ldapClients = [];
+            $this->options = [];
+
             foreach ((array) $this->getConfig()->getLdapConfig() as $name => $server) {
                 $adapter = Collection::get($server, 'adapter', 'ext_ldap');
                 $options = Collection::get($server, 'options', []);
 
                 $this->ldapClients[$name] = LdapClient::create($adapter, $options);
-                $this->options[$name] = array_merge(
-                    $this->defaultOptions,
-                    $server
-                );
+                $this->options[$name] = array_merge($this->defaultOptions, $server);
             }
         }
 
@@ -244,6 +246,8 @@ class Ldap extends AbstractBundle
     public function getDefaultBackBeeGroups()
     {
         if (null === $this->defaultBackBeeGroups) {
+            $this->defaultBackBeeGroups = [];
+
             $defaultGroups = (array) Collection::get($this->getConfig()->getParametersConfig(), 'default_backbee_groups', []);
             foreach ($defaultGroups as $defaultGroup) {
                 if (null === $group = $this->getEntityManager()->find(Group::class, $defaultGroup)) {
@@ -261,6 +265,8 @@ class Ldap extends AbstractBundle
 
     /**
      * Method to call when we get the bundle for the first time.
+     *
+     * @codeCoverageIgnore
      */
     public function start()
     {
@@ -288,5 +294,4 @@ class Ldap extends AbstractBundle
             $renderer->addScriptDir(realpath(__DIR__ . '/../views'));
         }
     }
-
 }

@@ -21,6 +21,9 @@
 
 namespace LpDigital\Bundle\LdapBundle\Test;
 
+use Doctrine\ORM\Tools\SchemaTool;
+use BackBee\Security\Group;
+
 /**
  * Test suite for Ldap bundle class.
  *
@@ -32,84 +35,50 @@ class LdapTest extends LdapTestCase
 {
 
     /**
-     * Sets up the fixture.
+     * @covers LpDigital\Bundle\LdapBundle\Ldap::persistOnMissing()
      */
-    public function setUp()
+    public function testPersistOnMissing()
     {
-        parent::setUp();
-        $this->bundle->start();
+        $this->assertFalse($this->bundle->persistOnMissing());
+
+        $this->bundle->getConfig()->setSection('parameters', ['persist_on_missing' => true]);
+        $this->assertTrue($this->bundle->persistOnMissing());
     }
 
     /**
-     * @covers            LpDigital\Bundle\LdapBundle\Ldap::bind()
-     * @expectedException \Symfony\Component\Ldap\Exception\LdapException
+     * @covers LpDigital\Bundle\LdapBundle\Ldap::getStoredAttributes()
      */
-    public function testInvalidBind()
+    public function testGetStoredAttributes()
     {
-        $this->bundle->bind('notgood', 'notgood');
+        $this->assertEquals([], $this->bundle->getStoredAttributes());
+
+        $this->bundle->getConfig()->setSection('parameters', ['store_attributes' => ['cn', 'mail']]);
+        $this->assertEquals(['cn', 'mail'], $this->bundle->getStoredAttributes());
     }
 
     /**
-     * @covers LpDigital\Bundle\LdapBundle\Ldap::bind()
+     * @covers LpDigital\Bundle\LdapBundle\Ldap::getDefaultBackBeeGroups()
      */
-    public function testBind()
+    public function testGetDefaultBackBeeGroups()
     {
-        $this->assertNull($this->bundle->bind('good', 'good'));
-    }
+        $em = $this->bundle->getEntityManager();
+        $schema = new SchemaTool($em);
+        $schema->createSchema([$em->getClassMetadata(Group::class)]);
 
-    /**
-     * @covers            LpDigital\Bundle\LdapBundle\Ldap::query()
-     * @expectedException \Symfony\Component\Ldap\Exception\LdapException
-     */
-    public function testInvalidBindQuery()
-    {
-        $this->bundle->query('username');
-    }
+        $group1 = new Group();
+        $group1->setName('group1');
+        $group2 = new Group();
+        $group2->setName('group2');
+        $em->persist($group1);
+        $em->persist($group2);
+        $em->flush();
 
-    /**
-     * @covers            LpDigital\Bundle\LdapBundle\Ldap::query()
-     */
-    public function testQuery()
-    {
-        $this->invokeProperty($this->bundle, 'options', [
-            'base_dn' => '',
-            'search_dn' => 'good',
-            'search_password' => 'good',
-            'filter' => '(sAMAccountName={username})',
-            'persist_on_missing' => false,
-        ]);
-
-        $this->assertTrue(is_array($this->bundle->query('username')));
-    }
-
-    /**
-     * @covers LpDigital\Bundle\LdapBundle\Ldap::getOption()
-     * @covers LpDigital\Bundle\LdapBundle\Ldap::setOption()
-     */
-    public function testOption()
-    {
-        $this->assertNull($this->bundle->getOption('unknown'));
-        $this->assertEquals('default', $this->bundle->getOption('unknown', 'default'));
-        $this->assertEquals('(sAMAccountName={username})', $this->bundle->getOption('filter'));
-
-        $this->assertEquals($this->bundle, $this->bundle->setOption('unknown', 'new'));
-        $this->assertEquals('new', $this->bundle->getOption('unknown'));
-    }
-
-    /**
-     * @covers LpDigital\Bundle\LdapBundle\Ldap::start()
-     */
-    public function testStart()
-    {
-        $expectedOptions = [
-            'base_dn' => '',
-            'search_dn' => '',
-            'search_password' => '',
-            'filter' => '(sAMAccountName={username})',
-            'persist_on_missing' => false,
-            'store_attributes' => ['cn', 'description', 'name', 'mail', 'memberOf']
+        $this->bundle->getConfig()->setSection('parameters', ['default_backbee_groups' => [1, 'group2', 'unknown']]);
+        $expected = [
+            1 => $group1,
+            2 => $group2
         ];
 
-        $this->assertEquals($expectedOptions, $this->invokeProperty($this->bundle, 'options'));
+        $this->assertEquals($expected, $this->bundle->getDefaultBackBeeGroups());
     }
 }
