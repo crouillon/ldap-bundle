@@ -1,0 +1,71 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="panel-title">
+            <a class="sort_server_link btn btn-white" title="Sort server"><i class="fa fa-bars"></i></a>
+            <a class="btn btn-white collapsed" data-toggle="collapse" data-parent="#servers" href="#collapse{{ index }}"> {{ name }} <em>({{server.options.host}}:{{server.options.port}})</em></a>
+        </div>
+    </div>
+    <div id="collapse{{ index }}" class="panel-collapse collapse">
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="server_name{{ index }}" class="label">Name</label>
+                <div>
+                    <small class="text-muted">A name identifier for this server.</small>
+                    <input type="text" class="form-control btn-radius" id="server_name{{ index }}" name="server_name[]" value="{{ name }}" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="label">Connection options</label>
+                <div class="input-group">
+                    <span class="input-group-addon">Host:</span>
+                    <input type="text" class="form-control btn-radius" id="server_options_host{{ index }}" name="server_options_host[]" value="{{ server.options.host }}" />
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">Port:</span>
+                    <input type="text" class="form-control btn-radius" id="server_options_port{{ index }}" name="server_options_port[]" value="{{ server.options.port }}" />
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">Version:</span>
+                    <input type="text" class="form-control btn-radius" id="server_options_version{{ index }}" name="server_options_version[]" value="{{ server.options.version }}" />
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">Encryption:</span>
+                    <select class="form-control btn-radius" id="server_options_encryption{{ index }}" name="server_options_encryption[]">
+                        <option{% if 'none' == server.options.encryption %} selected="selected"{% endif %}>none</option>
+                        <option{% if 'ssl' == server.options.encryption %} selected="selected"{% endif %}>ssl</option>
+                        <option{% if 'tls' == server.options.encryption %} selected="selected"{% endif %}>tls</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="label">Search account</label>
+                <small class="text-muted">A real-only LDAP account to query the server.</small>
+                <div class="input-group">
+                    <span class="input-group-addon">DN:</span>
+                    <input type="text" class="form-control btn-radius" id="server_search_dn{{ index }}" name="server_search_dn[]" value="{{ server.search_dn }}" />
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon">Password:</span>
+                    <input type="password" class="form-control btn-radius" id="server_search_password{{ index }}" name="server_search_password[]" value="{{ server.search_password }}" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="store_attributes" class="label">Query base DN</label>
+                <div>
+                    <small class="text-muted">The base DN in which look for user.</small>
+                    <input type="text" class="form-control btn-radius" id="server_base_dn{{index }}}}" name="server_base_dn[]" value="{{ server.base_dn }}" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="store_attributes" class="label">Query filter</label>
+                <div>
+                    <small class="text-muted">The filter to be apply by querying the server. Should contain {username} keyword.</small>
+                    <input type="text" class="form-control btn-radius" id="server_filter{{index }}}}" name="server_filter[]" value="{{ server.filter }}" />
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <a href="#" class="remove_server_link btn btn-default-grey btn-sm"><i class="fa fa-trash"></i> Remove the server</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,108 @@
+<div class="bb-bundle-content bundle-{{ bundle.getId() }}">
+    <style>
+        #bb5-ui div.bundle-{{ bundle.getId() }} .input-group-addon:first-child {
+            border-right: 0;
+            min-width: 100px;
+            text-align: right;
+            background-color: white;
+        }
+    </style>
+        <form {{ this.bundleAdminForm('ldap.admin.save')|raw }} class="clearfix">
+        <fieldset>
+            <legend>General parameters</legend>
+            <div class="form-group">
+                <div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" id="persist_on_missing" name="persist_on_missing" value="true" {% if bundle.persistOnMissing() %} checked{% endif %} /> Persist on missing
+                        </label>
+                        <br/>{{bundle.persistOnMissing() }}
+                        <small class="text-muted">Specifies whether to persist a LDAP user missing in bundle and BackBee tables.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="store_attributes" class="label">Store attributes</label>
+                <div>
+                    <small class="text-muted">The LDAP attributes to store for a user, separated by a comma. For example <strong>cn</strong>, <strong>mail</strong>.</small>
+                    <input type="text" class="form-control btn-radius" id="store_attributes" name="store_attributes" value="{{ bundle.getStoredAttributes()|join(', ') }}" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="default_backbee_groups" class="label">Default BackBee groups</label>
+                <div>
+                    <small class="text-muted">The default BackBee groups for persisted users. <strong>Hold ctrl or shift (or drag with the mouse) to select more than one</strong>.</small>
+                    <select class="form-control btn-radius" id="default_backbee_groups" name="default_backbee_groups[]" multiple="multiple">
+                        {% set defaultGroups = bundle.getDefaultBackBeeGroups() %}
+                        {% for group in groups %}
+                            <option value="{{ group.getId() }}"{% if defaultGroups[group.getUid()] %} selected="selected"{% endif %}>{{ group.getName() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>LDAP servers</legend>
+            <small class="text-muted">Multiple servers can be configured. The sort order will be respected while querying.</small>
+            {% set customPrototype %}
+                {% filter escape %}
+                    {{ this.partial('LdapBundle/Admin/Partials/Server.html.twig', {'index': '__name__', 'name': 'New server'})|raw }}
+                {% endfilter %}
+            {% endset %}
+            <div id="servers" data-prototype="{{ customPrototype }}">
+                {% for name, server in bundle.getConfig().getLdapConfig() %}
+                    {{ this.partial('LdapBundle/Admin/Partials/Server.html.twig', {'index': loop.index, 'name': name, 'server': server})|raw }}
+                {% endfor %}
+                <div><a href="#" class="add_server_link btn btn-default-grey btn-sm"><i class="fa fa-plus"></i> Add a new server</a></div>
+            </div>
+        </fieldset>
+        <hr/>
+        <button type="submit" class="btn btn-radius btn-default">Save</button>
+    </form>
+    <script>
+        (function () {
+            'use strict';
+
+            var Core = require('Core'),
+                jQuery = require('jquery'),
+                collectionHolder = jQuery('#servers'),
+                addServerLink = collectionHolder.find('a.add_server_link'),
+                delServerLink = collectionHolder.find('a.remove_server_link'),
+
+                addServerForm = function(collectionHolder, addFieldLink) {
+                    var prototype = collectionHolder.data('prototype'),
+                        index = collectionHolder.data('index'),
+                        newForm = prototype.replace(/__name__/g, index);
+
+                    collectionHolder.data('index', index + 1)
+                    addServerLink.parent().before(newForm);
+                },
+
+                delServerForm = function(server) {
+                    server.remove();
+                };
+
+            collectionHolder.data('index', collectionHolder.find('div.panel').length + 1);
+            collectionHolder.sortable({
+                stop: function() {
+                    jQuery.each(collectionHolder.find('.panel'), function(index, server) {
+                        var inputs = $(server).find(':input');
+                        jQuery.each(inputs, function(i, f) { 
+                            jQuery(f).attr('name', jQuery(f).attr('name').replace(/\d/g, index)); 
+                        });
+                    })
+                }
+            });
+
+            addServerLink.on('click', function (e) {
+                e.preventDefault();
+                addServerForm(collectionHolder, addServerLink);
+            });
+
+            delServerLink.on('click', function (e) {
+                e.preventDefault();
+                delServerForm(jQuery(e.target).parents('div.panel'));
+            });
+        })();
+    </script>
+</div>
