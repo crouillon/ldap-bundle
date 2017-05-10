@@ -214,6 +214,10 @@ class LdapAuthenticationListener implements ListenerInterface
             $this->dispatcher->dispatch(SecurityEvents::INTERACTIVE_LOGIN, $loginEvent);
         }
 
+        if (null === $request->headers->get('referer')) {
+            $request->headers->set('referer', $request->getPathInfo());
+        }
+
         $response = $this->successHandler->onAuthenticationSuccess($request, $token);
 
         if (!$response instanceof Response) {
