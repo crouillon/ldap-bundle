@@ -35,6 +35,26 @@ class LdapTest extends LdapTestCase
 {
 
     /**
+     * @covers LpDigital\Bundle\LdapBundle\Ldap::getLdapClients()
+     */
+    public function testGetLdapClients()
+    {
+        $defaultOptions = $this->invokeProperty($this->bundle, 'defaultOptions');
+        $ldapConfig = [
+            'ad1' => [],
+            'ad2' => ['base_dn' => 'ad2 basedn'],
+        ];
+
+        $this->bundle->getConfig()->setSection('ldap', $ldapConfig, true);
+        $ldapClients = $this->invokeMethod($this->bundle, 'getLdapClients');
+
+        $this->assertTrue(is_array($ldapClients));
+        $this->assertEquals(2, count($ldapClients));
+        $this->assertEquals($defaultOptions['base_dn'], $this->bundle->getOption('ad1', 'base_dn'));
+        $this->assertEquals($ldapConfig['ad2']['base_dn'], $this->bundle->getOption('ad2', 'base_dn'));
+    }
+
+    /**
      * @covers LpDigital\Bundle\LdapBundle\Ldap::persistOnMissing()
      */
     public function testPersistOnMissing()
