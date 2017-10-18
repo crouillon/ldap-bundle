@@ -2,7 +2,7 @@ bundle:
     name: LDAP Authentication bundle
     description: ldap-bundle enables to easily implement LDAP authentication on BackBee instances.
     author: Charles Rouillon <charles.rouillon@lp-digital.fr>
-    version: 0.3.0
+    version: 0.3.1
     enable: true
     admin_controller:
         admin: LpDigital\Bundle\LdapBundle\Controller\AdminController
@@ -15,6 +15,7 @@ bundle:
 ldap: []
 
 parameters:
-    persist_on_missing: false
-    store_attributes: []
-    default_backbee_groups: []
+    persist_on_missing: false    # if true will persist a new user on first connection
+    store_attributes: []         # a set of LDAP attributes to be stores
+    user_groups: []              # an array of LDAP group which user should be member: <<group cn>: <<backbee group>>
+    default_backbee_groups: []   # default backbee group for users.
