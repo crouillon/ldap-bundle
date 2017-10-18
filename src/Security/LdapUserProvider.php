@@ -28,6 +28,8 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
+use BackBee\Utils\Collection\Collection;
+
 use LpDigital\Bundle\LdapBundle\Entity\LdapUser;
 use LpDigital\Bundle\LdapBundle\Ldap;
 
@@ -118,6 +120,9 @@ class LdapUserProvider extends EntityRepository implements UserProviderInterface
             throw new UnsupportedUserException(sprintf('Invalid user `%s`.', $user->getUsername()));
         }
 
+        $memberOf = (array) $user->getAttribute('memberOf');
+        $this->checkRequiredGroups($memberOf, $user->getUsername());
+
         return $refreshed;
     }
 
@@ -155,6 +160,9 @@ class LdapUserProvider extends EntityRepository implements UserProviderInterface
             $this->getEntityManager()->persist($user);
         }
 
+        $memberOf = $entry->hasAttribute('memberOf') ? (array) $entry->getAttribute('memberOf') : [];
+        $this->checkRequiredGroups($memberOf, $username);
+
         $user->setLastConnection(new \DateTime());
         foreach ($this->ldap->getStoredAttributes() as $name) {
             if ($entry->hasAttribute($name)) {
@@ -165,5 +173,27 @@ class LdapUserProvider extends EntityRepository implements UserProviderInterface
         $this->getEntityManager()->flush($user);
 
         return $user;
+    }
+
+    /**
+     * Checks if the user is member of required LDAP groups.
+     *
+     * @param  array  $memberOf The list of groups which user is member.
+     * @param  string $username The username.
+     *
+     * @throws UnsupportedUserException if user is not member of one of the required groups.
+     */
+    private function checkRequiredGroups(array $memberOf, $username)
+    {
+        $usergroups = (array) Collection::get(
+            $this->ldap->getConfig()->getParametersConfig(),
+            'user_groups',
+            []
+        );
+
+        $intersect = array_intersect($memberOf, array_keys($usergroups));
+        if (count($usergroups) && empty($intersect)) {
+            throw new UnsupportedUserException(sprintf('Invalid user `%s`.', $username));
+        }
     }
 }
